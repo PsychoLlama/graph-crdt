@@ -148,14 +148,25 @@ class Node extends Emitter {
 	/**
 	 * merge - description
 	 *
-	 * @param  {Node} source - The node to merge from.
+	 * @param  {Node|Object} update - The node to merge from.
+	 * If a plain object is passed, it will be upgraded to a node
+	 * using `Node.from`.
 	 * @param  {Number|Date} [state] - Override the system clock.
 	 * Useful for reverting to an earlier snapshot.
 	 * @returns {Node} - The `this` context.
 	 */
-	merge (source, state = time()) {
+	merge (update, state) {
 
-		const result = diff(this[node], source[node], state);
+		if (!(update instanceof Node)) {
+			update = Node.from(update);
+		}
+
+		const result = diff(
+			this[node],
+			update[node],
+			state || time()
+		);
+
 		const { historical, updates } = result;
 
 		Object.keys(updates).forEach((key) => {

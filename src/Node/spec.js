@@ -140,6 +140,11 @@ describe('A node', () => {
 			expect(result).toBe(node);
 		});
 
+		it('should convert POJOs into Nodes', () => {
+			node.merge({ data: 'success' });
+			expect(node.prop('data')).toBe('success');
+		});
+
 		describe('within operating state bounds', () => {
 
 			it('should add all new properties', () => {
