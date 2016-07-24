@@ -8,6 +8,10 @@ const time = require('../time');
 const node = Symbol('source object');
 const defer = Symbol('defer method');
 
+let alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+alphanumeric += alphanumeric.toLowerCase();
+alphanumeric += '0123456789';
+
 class Node extends Emitter {
 
 	/**
@@ -42,6 +46,42 @@ class Node extends Emitter {
 		return node;
 	}
 
+	/**
+	 * Generate a random string of characters.
+	 *
+	 * @param {Object} [options] - An options object.
+	 * @param  {String|Array} [options.charset] - The symbols to choose from.
+	 * The default character set is mixed-case alphanumeric.
+	 * @param  {Number} [options.length] - The number of characters to generate.
+	 * Defaults to 24.
+	 * @returns {String} - The finished string.
+	 */
+	static uid ({ charset = alphanumeric, length = 24 } = {}) {
+
+		// Immediately invoked, recursively calls itself.
+		return (function recurse (length, string) {
+
+			// Base case.
+			if (length <= 0) {
+				return string;
+			}
+
+			/** Finds a random character. */
+			const random = Math.random() * charset.length;
+
+			/** Rounds it down. */
+			const index = Math.floor(random);
+
+			/** Chooses that character. */
+			const char = charset[index];
+
+			/** Do it again. */
+			return recurse(length - 1, string + char);
+
+		}(length, ''));
+
+	}
+
 	constructor () {
 
 		super();
@@ -52,7 +92,9 @@ class Node extends Emitter {
 		};
 
 		this[node] = {
-			[this.legend.metadata]: {},
+			[this.legend.metadata]: {
+				uid: Node.uid(),
+			},
 		};
 	}
 
