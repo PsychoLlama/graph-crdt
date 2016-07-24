@@ -25,8 +25,8 @@ describe('Node static method', () => {
 				birthday: date,
 			});
 
-			expect(node.prop('name')).toBe('Sam');
-			expect(node.prop('birthday')).toBe(date);
+			expect(node.read('name')).toBe('Sam');
+			expect(node.read('birthday')).toBe(date);
 		});
 
 		it('should set the state to the current time', () => {
@@ -99,7 +99,7 @@ describe('A node', () => {
 	describe('property lookup', () => {
 
 		it('should return undefined if the key cannot be found', () => {
-			const result = node.prop('no such key');
+			const result = node.read('no such key');
 			expect(result).toBe(undefined);
 		});
 
@@ -108,7 +108,7 @@ describe('A node', () => {
 			// Please, never do this in your code.
 			node.meta().value = 'failure!';
 
-			const result = node.prop(node.legend.metadata);
+			const result = node.read(node.legend.metadata);
 			expect(result).toBe(undefined);
 		});
 
@@ -118,7 +118,7 @@ describe('A node', () => {
 
 		it('should create a new property if none exists', () => {
 			node.update('name', 'Joe', now);
-			const value = node.prop('name');
+			const value = node.read('name');
 			expect(value).toBe('Joe');
 		});
 
@@ -151,7 +151,7 @@ describe('A node', () => {
 
 		it('should convert POJOs into Nodes', () => {
 			node.merge({ data: 'success' });
-			expect(node.prop('data')).toBe('success');
+			expect(node.read('data')).toBe('success');
 		});
 
 		describe('within operating state bounds', () => {
@@ -167,12 +167,12 @@ describe('A node', () => {
 			it('should update existing properties', () => {
 				const incoming = Node.from({ data: false });
 				node.merge(incoming);
-				expect(node.prop('data')).toBe(false);
+				expect(node.read('data')).toBe(false);
 
 				incoming.update('data', true, time());
 				node.merge(incoming);
 
-				expect(node.prop('data')).toBe(true);
+				expect(node.read('data')).toBe(true);
 			});
 
 			it('should emit `update` after updates', () => {
@@ -218,7 +218,7 @@ describe('A node', () => {
 
 				node.merge(incoming);
 
-				expect(node.prop('hello')).toBe('World');
+				expect(node.read('hello')).toBe('World');
 
 			});
 
@@ -228,7 +228,7 @@ describe('A node', () => {
 
 				node.merge(incoming);
 
-				expect(node.prop('success')).toBe(true);
+				expect(node.read('success')).toBe(true);
 			});
 
 			it('should emit `historical` if updates are outdated', () => {
@@ -281,10 +281,10 @@ describe('A node', () => {
 			it('should not merge until that state is reached', (done) => {
 				incoming.update('future', true, time() + 5);
 				node.merge(incoming);
-				expect(node.prop('future')).toNotExist();
+				expect(node.read('future')).toNotExist();
 
 				setTimeout(() => {
-					expect(node.prop('future')).toBe(true);
+					expect(node.read('future')).toBe(true);
 					done();
 				}, 10);
 			});

@@ -85,7 +85,7 @@ class Node extends Emitter {
 	 * or undefined if it doesn't exist. Cannot be called
 	 * on reserved fields (like "@object").
 	 */
-	prop (field) {
+	read (field) {
 		if (field === this.legend.metadata) {
 			return undefined;
 		}
