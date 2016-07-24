@@ -169,7 +169,7 @@ describe('A node', () => {
 			it('should emit `update` after updates', () => {
 				let emitted = false;
 				node.on('update', (state) => {
-					expect(state.data).toBeAn(Object);
+					expect(state.data).toExist();
 					emitted = true;
 				});
 
@@ -228,7 +228,7 @@ describe('A node', () => {
 
 				let emitted = false;
 				node.on('historical', (staleUpdates) => {
-					expect(staleUpdates).toBeAn(Object);
+					expect(staleUpdates.data).toExist();
 					emitted = true;
 				});
 
@@ -251,6 +251,68 @@ describe('A node', () => {
 
 				expect(emitted).toBe(false);
 
+			});
+
+		});
+
+		describe('from the future', function () {
+
+			// Time can be sketchy.
+			this.retries(1);
+
+			// This should be ample.
+			this.timeout(500);
+
+			let incoming;
+
+			beforeEach(() => {
+				incoming = Node.create();
+			});
+
+			it('should not merge until that state is reached', (done) => {
+				incoming.update('future', true, time() + 5);
+				node.merge(incoming);
+				expect(node.prop('future')).toNotExist();
+
+				setTimeout(() => {
+					expect(node.prop('future')).toBe(true);
+					done();
+				}, 10);
+			});
+
+			it('should retry the merge later, not overwrite', (done) => {
+				incoming.update('future', true, time() + 10);
+				node.merge(incoming);
+
+				// If it's going through `merge`,
+				// the update event should fire.
+				node.on('update', (state) => {
+					expect(state.future).toExist();
+					done();
+				});
+			});
+
+			it('should emit `deferred` when deferred updates come in', () => {
+				let emitted = false;
+				incoming.update('future', true, time() + 10);
+
+				node.on('deferred', (keys) => {
+					expect(keys.future).toExist();
+					emitted = true;
+				});
+
+				node.merge(incoming);
+				expect(emitted).toBe(true);
+			});
+
+			it('should not emit `deferred` without deferred updates', () => {
+				let emitted = false;
+				node.on('deferred', () => {
+					emitted = true;
+				});
+
+				node.merge({ data: true });
+				expect(emitted).toBe(false);
 			});
 
 		});

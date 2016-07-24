@@ -1,4 +1,7 @@
 # Changelog
 
-## v0.1.0
-Initial release
+## Unreleased
+### Added
+ - `Node` class
+ - Merge capabilities
+ - `update`, `historical`, `deferred` events.

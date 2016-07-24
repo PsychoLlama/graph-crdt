@@ -161,16 +161,25 @@ class Node extends Emitter {
 			update = Node.from(update);
 		}
 
+		if (state === undefined) {
+			state = time();
+		}
+
 		const result = diff(
 			this[node],
 			update[node],
-			state || time()
+			state
 		);
 
-		const { historical, updates } = result;
+		const { historical, updates, deferred } = result;
 
 		const updateKeys = Object.keys(updates);
 		const historicalKeys = Object.keys(historical);
+		const deferredKeys = Object.keys(deferred);
+
+		if (historicalKeys.length) {
+			this.emit('historical', historical);
+		}
 
 		updateKeys.forEach((key) => {
 			const { value, state } = updates[key];
@@ -181,8 +190,17 @@ class Node extends Emitter {
 			this.emit('update', updates);
 		}
 
-		if (historicalKeys.length) {
-			this.emit('historical', historical);
+		deferredKeys.forEach((key) => {
+			const { value, state: scheduled } = deferred[key];
+			setTimeout(() => {
+				const incoming = Node.create();
+				incoming.update(key, value, state);
+				this.merge(incoming);
+			}, scheduled - state);
+		});
+
+		if (deferredKeys.length) {
+			this.emit('deferred', deferred);
 		}
 
 		return this;
