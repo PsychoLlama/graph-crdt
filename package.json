@@ -1,12 +1,37 @@
 {
-  "name": "graph-data",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "graph-datastore",
+  "version": "0.0.1",
+  "description": "Graph database tools",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "mocha": "mocha --opts ./mocha.opts",
+    "test": "npm run mocha src/",
+    "doc": "jsdoc --configure jsdoc.config.json"
   },
-  "keywords": [],
+  "keywords": [
+    "graph",
+    "database",
+    "tools",
+    "conflict-resolution"
+  ],
   "author": "Jesse Gibson <jesse@gundb.io> (http://techllama.com)",
-  "license": "ISC"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "expect": "^1.20.2",
+    "jsdoc": "^3.4.0",
+    "mocha": "^2.5.3",
+    "postman-jsdoc-theme": "0.0.2"
+  },
+  "dependencies": {
+    "es6-symbol": "^3.1.0",
+    "merge-helper": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PsychoLlama/graph-datastore.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PsychoLlama/graph-datastore/issues"
+  },
+  "homepage": "https://github.com/PsychoLlama/graph-datastore#readme"
 }
