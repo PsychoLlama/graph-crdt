@@ -166,6 +166,30 @@ describe('A node', () => {
 				expect(node.prop('data')).toBe(true);
 			});
 
+			it('should emit `update` after updates', () => {
+				let emitted = false;
+				node.on('update', (state) => {
+					expect(state.data).toBeAn(Object);
+					emitted = true;
+				});
+
+				node.merge({ data: 'yep' });
+
+				expect(emitted).toBe(true);
+			});
+
+			it('should not emit `update` without updates', () => {
+				let emitted = false;
+				node.on('update', () => {
+					emitted = true;
+				});
+
+				// No properties.
+				node.merge({});
+
+				expect(emitted).toBe(false);
+			});
+
 		});
 
 		describe('in historical state', () => {

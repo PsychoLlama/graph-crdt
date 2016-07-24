@@ -169,12 +169,19 @@ class Node extends Emitter {
 
 		const { historical, updates } = result;
 
-		Object.keys(updates).forEach((key) => {
+		const updateKeys = Object.keys(updates);
+		const historicalKeys = Object.keys(historical);
+
+		updateKeys.forEach((key) => {
 			const { value, state } = updates[key];
 			this.update(key, value, state);
 		});
 
-		if (Object.keys(historical).length) {
+		if (updateKeys.length) {
+			this.emit('update', updates);
+		}
+
+		if (historicalKeys.length) {
 			this.emit('historical', historical);
 		}
 
