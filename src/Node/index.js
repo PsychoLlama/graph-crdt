@@ -2,10 +2,11 @@
 
 const Symbol = require('es6-symbol');
 const diff = require('merge-helper');
+const Emitter = require('eventemitter3');
 const time = require('../time');
 const node = Symbol('node');
 
-class Node {
+class Node extends Emitter {
 
 	/**
 	 * Creates a new Node instance without using
@@ -32,6 +33,9 @@ class Node {
 	}
 
 	constructor () {
+
+		super();
+
 		this.legend = {
 			metadata: '@object',
 		};
@@ -152,12 +156,16 @@ class Node {
 	merge (source, state = time()) {
 
 		const result = diff(this[node], source[node], state);
-		const { updates } = result;
+		const { historical, updates } = result;
 
 		Object.keys(updates).forEach((key) => {
 			const { value, state } = updates[key];
 			this.update(key, value, state);
 		});
+
+		if (Object.keys(historical).length) {
+			this.emit('historical', historical);
+		}
 
 		return this;
 

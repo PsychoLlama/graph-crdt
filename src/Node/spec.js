@@ -163,6 +163,69 @@ describe('A node', () => {
 
 		});
 
+		describe('in historical state', () => {
+
+			let incoming;
+
+			beforeEach(() => {
+				incoming = Node.create();
+			});
+
+			it('should not more recent properties', () => {
+				// Stale update.
+				incoming.update('hello', 'Mars', time() - 10);
+
+				// Fresh state.
+				node.update('hello', 'World', time());
+
+				node.merge(incoming);
+
+				expect(node.prop('hello')).toBe('World');
+
+			});
+
+			it('should add new properties', () => {
+				// Really old state, but it's new to `node`.
+				incoming.update('success', true, time() - 100000);
+
+				node.merge(incoming);
+
+				expect(node.prop('success')).toBe(true);
+			});
+
+			it('should emit `historical` if updates are outdated', () => {
+				incoming.update('data', 'old state', time() - 10);
+				node.update('data', 'new state', time());
+
+				let emitted = false;
+				node.on('historical', (staleUpdates) => {
+					expect(staleUpdates).toBeAn(Object);
+					emitted = true;
+				});
+
+				node.merge(incoming);
+
+				expect(emitted).toBe(true);
+			});
+
+			it('should not emit `historical` without stale updates', () => {
+
+				let emitted = false;
+				node.on('historical', () => {
+					emitted = true;
+				});
+
+				incoming.update('new property', 'yeah', time() - 10);
+				node.update('hello', 'Earth', time());
+
+				node.merge(incoming);
+
+				expect(emitted).toBe(false);
+
+			});
+
+		});
+
 	});
 
 });

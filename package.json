@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "es6-symbol": "^3.1.0",
+    "eventemitter3": "^1.2.0",
     "merge-helper": "^1.0.0"
   },
   "repository": {
