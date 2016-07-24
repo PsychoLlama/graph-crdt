@@ -4,7 +4,9 @@ const Symbol = require('es6-symbol');
 const diff = require('merge-helper');
 const Emitter = require('eventemitter3');
 const time = require('../time');
-const node = Symbol('node');
+
+const node = Symbol('source object');
+const defer = Symbol('defer method');
 
 class Node extends Emitter {
 
@@ -19,6 +21,14 @@ class Node extends Emitter {
 		return new Node();
 	}
 
+	/**
+	 * Turns a normal object into a Node instance.
+	 * Properties to be imported must be enumerable
+	 * and cannot be inherited via prototype.
+	 *
+	 * @param  {Object} object - Any enumerable object.
+	 * @returns {Node} - A node interface constructed from the object.
+	 */
 	static 'from' (object) {
 		const node = Node.create();
 		const now = time();
@@ -36,6 +46,7 @@ class Node extends Emitter {
 
 		super();
 
+		/** Lookup table for reserved symbols. */
 		this.legend = {
 			metadata: '@object',
 		};
@@ -146,6 +157,38 @@ class Node extends Emitter {
 	}
 
 	/**
+	 * Schedule updates that have been deferred.
+	 *
+	 * @private
+	 * @param  {Object} updates - A description of all deferred
+	 * keys and their metadata.
+	 * @param  {Number|Date} state - The state the machine is running at.
+	 * Preferably a Date or epoch timestamp.
+	 * @returns {undefined}
+	 */
+	[defer] (updates, state) {
+		const keys = Object.keys(updates);
+
+		// If there aren't any deferred updates, quit.
+		if (!keys.length) {
+			return;
+		}
+
+		keys.forEach((key) => {
+			const { value, state: scheduled } = updates[key];
+
+			setTimeout(() => {
+				const incoming = Node.create();
+				incoming.update(key, value, state);
+
+				this.merge(incoming);
+			}, scheduled - state);
+		});
+
+		this.emit('deferred', updates);
+	}
+
+	/**
 	 * merge - description
 	 *
 	 * @param  {Node|Object} update - The node to merge from.
@@ -165,43 +208,30 @@ class Node extends Emitter {
 			state = time();
 		}
 
-		const result = diff(
-			this[node],
-			update[node],
-			state
-		);
+		const result = diff(this[node], update[node], state);
 
 		const { historical, updates, deferred } = result;
 
 		const updateKeys = Object.keys(updates);
-		const historicalKeys = Object.keys(historical);
-		const deferredKeys = Object.keys(deferred);
 
-		if (historicalKeys.length) {
+		if (Object.keys(historical).length) {
 			this.emit('historical', historical);
 		}
 
-		updateKeys.forEach((key) => {
-			const { value, state } = updates[key];
-			this.update(key, value, state);
-		});
-
 		if (updateKeys.length) {
+
+			/** Updates each field. */
+			updateKeys.forEach((key) => {
+				const { value, state } = updates[key];
+				this.update(key, value, state);
+			});
+
+			/** After finishing, the `update` event is fired. */
 			this.emit('update', updates);
 		}
 
-		deferredKeys.forEach((key) => {
-			const { value, state: scheduled } = deferred[key];
-			setTimeout(() => {
-				const incoming = Node.create();
-				incoming.update(key, value, state);
-				this.merge(incoming);
-			}, scheduled - state);
-		});
-
-		if (deferredKeys.length) {
-			this.emit('deferred', deferred);
-		}
+		/** Handles deferred updates. */
+		this[defer](deferred, state);
 
 		return this;
 

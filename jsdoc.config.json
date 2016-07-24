@@ -11,7 +11,7 @@
 	"opts": {
 		"template": "./node_modules/postman-jsdoc-theme",
 		"recurse": true,
-		"private": true,
+		"private": false,
 		"destination": "./docs/",
 		"readme": "./README.md"
 	}

@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * @module graph-datastore.time
+ * @private
+ */
+
 let last = 0;
 
 /**
