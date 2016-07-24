@@ -103,6 +103,15 @@ describe('A node', () => {
 			expect(result).toBe(undefined);
 		});
 
+		it('should return undefined if called on reserved fields', () => {
+
+			// Please, never do this in your code.
+			node.meta().value = 'failure!';
+
+			const result = node.prop(node.legend.metadata);
+			expect(result).toBe(undefined);
+		});
+
 	});
 
 	describe('value update', () => {

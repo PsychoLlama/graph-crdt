@@ -82,9 +82,13 @@ class Node extends Emitter {
 	 * @param  {String} field - The name of the property
 	 * to retrieve.
 	 * @returns {Mixed} - The value of the property,
-	 * or undefined if it doesn't exist.
+	 * or undefined if it doesn't exist. Cannot be called
+	 * on reserved fields (like "@object").
 	 */
 	prop (field) {
+		if (field === this.legend.metadata) {
+			return undefined;
+		}
 
 		/** Gets the field metadata. */
 		const subject = this.meta(field);
