@@ -1,6 +1,8 @@
 'use strict';
 
 const Symbol = require('es6-symbol');
+const diff = require('merge-helper');
+const time = require('../time');
 const node = Symbol('node');
 
 class Node {
@@ -14,6 +16,19 @@ class Node {
 	 */
 	static create () {
 		return new Node();
+	}
+
+	static 'from' (object) {
+		const node = Node.create();
+		const now = time();
+
+		for (const key in object) {
+			if (object.hasOwnProperty(key)) {
+				node.update(key, object[key], now);
+			}
+		}
+
+		return node;
 	}
 
 	constructor () {
@@ -126,6 +141,27 @@ class Node {
 		return result;
 	}
 
+	/**
+	 * merge - description
+	 *
+	 * @param  {Node} source - The node to merge from.
+	 * @param  {Number|Date} [state] - Override the system clock.
+	 * Useful for reverting to an earlier snapshot.
+	 * @returns {Node} - The `this` context.
+	 */
+	merge (source, state = time()) {
+
+		const result = diff(this[node], source[node], state);
+		const { updates } = result;
+
+		Object.keys(updates).forEach((key) => {
+			const { value, state } = updates[key];
+			this.update(key, value, state);
+		});
+
+		return this;
+
+	}
 }
 
-module.exports = exports.default = Node;
+module.exports = Node.default = Node;

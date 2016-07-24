@@ -3,6 +3,44 @@
 const { describe, it, beforeEach } = require('mocha');
 const expect = require('expect');
 const Node = require('./index');
+const time = require('../time');
+
+describe('Node static method', () => {
+
+	describe('"from"', function () {
+
+		// Using system time can cause race conditions.
+		this.retries(1);
+
+		it('should turn a POJO into a node', () => {
+			const node = Node.from({});
+
+			expect(node).toBeA(Node);
+		});
+
+		it('should import the properties from the target object', () => {
+			const date = new Date('1 Jan 1980');
+			const node = Node.from({
+				name: 'Sam',
+				birthday: date,
+			});
+
+			expect(node.prop('name')).toBe('Sam');
+			expect(node.prop('birthday')).toBe(date);
+		});
+
+		it('should set the state to the current time', () => {
+			const now = new Date().getTime();
+			const node = Node.from({ name: 'Alvin' });
+
+			expect(node.state('name'))
+				.toBeLessThan(now + 5)
+				.toBeGreaterThan(now - 5);
+		});
+
+	});
+
+});
 
 describe('A node', () => {
 
@@ -90,6 +128,39 @@ describe('A node', () => {
 		it('should namespace to avoid conflicts', () => {
 			node.update('update', 'not a function', now);
 			expect(node.update).toBeA(Function);
+		});
+
+	});
+
+	describe('merge', () => {
+
+		it('should return the `this` context', () => {
+			const incoming = Node.from({ stuff: true });
+			const result = node.merge(incoming);
+			expect(result).toBe(node);
+		});
+
+		describe('within operating state bounds', () => {
+
+			it('should add all new properties', () => {
+				const update = Node.from({ data: true });
+				node.merge(update);
+
+				const keys = node.keys();
+				expect(keys).toContain('data');
+			});
+
+			it('should update existing properties', () => {
+				const incoming = Node.from({ data: false });
+				node.merge(incoming);
+				expect(node.prop('data')).toBe(false);
+
+				incoming.update('data', true, time());
+				node.merge(incoming);
+
+				expect(node.prop('data')).toBe(true);
+			});
+
 		});
 
 	});
