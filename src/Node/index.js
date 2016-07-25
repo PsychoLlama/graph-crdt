@@ -305,6 +305,18 @@ class Node extends Emitter {
 
 		return uid;
 	}
+
+	/**
+	 * Returns the actual object, called when JSON needs something
+	 * to stringify. Obviously dangerous as it exposes the object
+	 * to untracked mutation. Please don't use it.
+	 *
+	 * @private
+	 * @returns {Object} - The actual node object.
+	 */
+	toJSON () {
+		return this[node];
+	}
 }
 
 module.exports = Node.default = Node;

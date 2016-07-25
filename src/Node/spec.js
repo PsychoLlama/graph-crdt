@@ -97,6 +97,13 @@ describe('A node', () => {
 		expect(result).toBe(uid);
 	});
 
+	it('should return the node when `toJSON` is called', () => {
+		node.merge({ 'json worked': true });
+		const result = JSON.stringify(node);
+
+		expect(result).toContain('json worked');
+	});
+
 	/* Not so generic tests */
 	describe('uid', () => {
 
