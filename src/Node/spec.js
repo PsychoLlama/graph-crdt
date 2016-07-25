@@ -85,11 +85,19 @@ describe('A node', () => {
 		node = Node.create();
 	});
 
+	/* Generic tests */
 	it('should not have properties upon creation', () => {
 		const keys = node.keys();
 		expect(keys.length).toBe(0);
 	});
 
+	it('should return the uid when `toString` is called', () => {
+		const result = node.toString();
+		const { uid } = node.meta();
+		expect(result).toBe(uid);
+	});
+
+	/* Not so generic tests */
 	describe('uid', () => {
 
 		it('should exist on creation', () => {

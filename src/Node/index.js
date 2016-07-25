@@ -282,6 +282,21 @@ class Node extends Emitter {
 		return this;
 
 	}
+
+	/* Coercion interfaces */
+
+	/**
+	 * Returns the node's uid. Not meant for end developers,
+	 * instead used by JavaScript for type coercion.
+	 *
+	 * @private
+	 * @returns {String} - The node's unique ID.
+	 */
+	toString () {
+		const { uid } = this.meta();
+
+		return uid;
+	}
 }
 
 module.exports = Node.default = Node;
