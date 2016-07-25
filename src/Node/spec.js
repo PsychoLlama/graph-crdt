@@ -74,6 +74,18 @@ describe('Node static method', () => {
 
 	});
 
+	describe('"source"', () => {
+
+		it('should create a node that draws from an object', () => {
+			const node = Node.create().merge({ data: 'intact' });
+			const string = JSON.stringify(node);
+			const object = JSON.parse(string);
+			const copy = Node.source(object);
+			expect(copy.read('data')).toBe('intact');
+		});
+
+	});
+
 });
 
 describe('A node', () => {

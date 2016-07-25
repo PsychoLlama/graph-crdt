@@ -90,6 +90,29 @@ class Node extends Emitter {
 
 	}
 
+	/**
+	 * Take an object and use it as the data source for a new
+	 * node. This method is used with properly formatted
+	 * objects, such as stringified, then parsed node instances.
+	 *
+	 * @param  {Object} object - The preformatted object.
+	 * @returns {Node} - A new node instance.
+	 *
+	 * @example
+	 * const original = Node.create().merge({ data: 'intact' })
+	 * const serialized = JSON.stringify(original)
+	 * const parsed = JSON.parse(serialized)
+	 *
+	 * const node = Node.source(parsed)
+	 * node.read('data') // 'intact'
+	 */
+	static source (object) {
+		const instance = Node.create();
+		instance[node] = object;
+
+		return instance;
+	}
+
 	constructor () {
 
 		super();
