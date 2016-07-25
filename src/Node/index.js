@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * @module graph-datastore.Node
+ */
+
 const Symbol = require('es6-symbol');
 const diff = require('merge-helper');
 const Emitter = require('eventemitter3');
@@ -12,13 +16,17 @@ let alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 alphanumeric += alphanumeric.toLowerCase();
 alphanumeric += '0123456789';
 
+/**
+ * An observable object with conflict-resolution.
+ *
+ * @class Node
+ */
 class Node extends Emitter {
 
 	/**
 	 * Creates a new Node instance without using
 	 * `new`.
 	 *
-	 * @constructs Node
 	 * @returns {Node} - The new node instance.
 	 */
 	static create () {
