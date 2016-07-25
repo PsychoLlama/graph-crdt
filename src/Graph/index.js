@@ -26,6 +26,41 @@ class Graph extends Emitter {
 	}
 
 	/**
+	 * Imports a format compliant graph into a new one. Unlike
+	 * `Graph.from`, it expects nested nodes to use the node
+	 * metadata format. Useful for sending and importing graphs
+	 * over the network.
+	 *
+	 * @param  {Object} object - The raw graph object.
+	 * @returns {Graph} - A new graph instance that consumes
+	 * the imported data.
+	 */
+	static source (object) {
+
+		// Create a new graph
+		const graph = Graph.create();
+
+		// For each node...
+		Object.keys(object).forEach((key) => {
+
+			const value = object[key];
+
+			// Make sure it's a node.
+			if (value instanceof Node) {
+				graph.add(value);
+			} else {
+
+				// If it isn't, turn it into one.
+				// Assume it's preformatted.
+				const node = Node.source(value);
+				graph.add(node);
+			}
+		});
+
+		return graph;
+	}
+
+	/**
 	 * Turn an object with nodes in it into a graph.
 	 *
 	 * @param  {Object} object - An object with nothing
@@ -34,14 +69,17 @@ class Graph extends Emitter {
 	 */
 	static 'from' (object) {
 
+		// Create a new graph
 		const graph = Graph.create();
 
-		for (const key in object) {
-			if (object.hasOwnProperty(key)) {
-				const node = object[key];
-				graph.add(node);
-			}
-		}
+		// For each node...
+		Object.keys(object).forEach((key) => {
+			const node = object[key];
+
+			// Add it to the new graph (.add assumes plain objects
+			// aren't already formatted).
+			graph.add(node);
+		});
 
 		return graph;
 	}
@@ -63,7 +101,9 @@ class Graph extends Emitter {
 	}
 
 	/**
-	 * Add a node to the graph, merging if it already exists.
+	 * Add a node to the graph, merging if it already exists. If
+	 * passed a plain object, it will convert it into a node using
+	 * `Node.from`.
 	 *
 	 * @emits Graph#event:add
 	 * @param  {Node} node - The data to add.
@@ -107,8 +147,11 @@ class Graph extends Emitter {
 
 		const keys = graph.keys();
 
+		// Read each node from the update graph.
 		keys.forEach((key) => {
 			const node = graph.raw(key);
+
+			// Add it to ours.
 			this.add(node);
 		});
 
@@ -123,6 +166,17 @@ class Graph extends Emitter {
 	 */
 	keys () {
 		return Object.keys(this[nodes]);
+	}
+
+	/* Coercion interfaces */
+
+	/**
+	 * Used to serialize a graph (JSON.stringify will calls this method).
+	 *
+	 * @returns {Object} - The hidden collection of nodes.
+	 */
+	toJSON () {
+		return this[nodes];
 	}
 
 }

@@ -30,6 +30,34 @@ describe('Graph static method', () => {
 
 	});
 
+	describe('"source"', () => {
+
+		it('should use the input as it\'s data source', () => {
+			const node = Node.create({ uid: 'member' });
+			const graph = Graph.create();
+			node.merge({ data: true });
+			graph.add(node);
+
+			const copy = Graph.source(graph.toJSON());
+			expect(copy.raw('member').read('data')).toBe(true);
+		});
+
+		it('should source nested POJOs into nodes', () => {
+			const node = Node.create().merge({ data: true });
+			const copy = JSON.parse(JSON.stringify(node));
+
+			const graph = Graph.source({
+
+				// "copy" is a plain object.
+				'placeholder': copy,
+			});
+
+			const [key] = graph.keys();
+			expect(graph.raw(key)).toBeA(Node);
+		});
+
+	});
+
 });
 
 describe('A graph', () => {
@@ -43,6 +71,16 @@ describe('A graph', () => {
 		const keys = graph.keys();
 
 		expect(keys.length).toBe(0);
+	});
+
+	it('should return the nodes when `toJSON` is called', () => {
+		const node = Node.create({ uid: 'unique id' });
+		node.merge({ data: 'intact' });
+		graph.add(node);
+
+		const string = JSON.stringify(graph);
+		expect(string).toContain('unique id');
+		expect(string).toContain('intact');
 	});
 
 	describe('"add" call', () => {
