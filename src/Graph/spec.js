@@ -89,10 +89,7 @@ describe('A graph', () => {
 
 		it('should merge nodes with the same uid', () => {
 			graph.add(node);
-			const similar = Node.create();
-
-			// FUTURE: when you can choose the uid, make this less hacky.
-			similar.meta().uid = node.meta().uid;
+			const similar = Node.create({ uid: node.toString() });
 
 			// Add a new property.
 			similar.merge({ hello: 'world' });

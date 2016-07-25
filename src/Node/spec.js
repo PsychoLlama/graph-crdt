@@ -130,6 +130,12 @@ describe('A node', () => {
 			expect(uid1).toNotBe(uid2);
 		});
 
+		it('should use the configuration provided', () => {
+			const node = Node.create({ uid: 'custom' });
+			const { uid } = node.meta();
+			expect(uid).toBe('custom');
+		});
+
 	});
 
 	describe('field state lookup', () => {

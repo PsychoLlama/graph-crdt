@@ -20,6 +20,9 @@ alphanumeric += '0123456789';
  * An observable object with conflict-resolution.
  *
  * @class Node
+ * @param  {Object} [config] - Instance level configuration.
+ * @param  {Object} [config.uid] - Override the randomly generated
+ * node uid.
  */
 class Node extends Emitter {
 
@@ -27,10 +30,11 @@ class Node extends Emitter {
 	 * Creates a new Node instance without using
 	 * `new`.
 	 *
+	 * @param {Object} [config] - The constructor configuration object.
 	 * @returns {Node} - The new node instance.
 	 */
-	static create () {
-		return new Node();
+	static create (config) {
+		return new Node(config);
 	}
 
 	/**
@@ -114,7 +118,7 @@ class Node extends Emitter {
 		return instance;
 	}
 
-	constructor () {
+	constructor (config = {}) {
 
 		super();
 
@@ -125,7 +129,7 @@ class Node extends Emitter {
 
 		this[node] = {
 			[this.legend.metadata]: {
-				uid: Node.uid(),
+				uid: config.uid || Node.uid(),
 			},
 		};
 	}
