@@ -91,7 +91,6 @@ describe('Node static method', () => {
 describe('A node', () => {
 
 	let node;
-	const now = new Date();
 
 	beforeEach(() => {
 		node = Node.create();
@@ -150,7 +149,7 @@ describe('A node', () => {
 		});
 
 		it('should return the metadata if the field exists', () => {
-			node.update('name', 'Steve', now);
+			node.merge({ name: 'Steve' });
 			const result = node.meta('name');
 			expect(result).toBeAn(Object);
 		});
@@ -165,7 +164,7 @@ describe('A node', () => {
 		});
 
 		it('should list all the keys', () => {
-			node.update('name', 'Anthony', now);
+			node.merge({ name: 'Anthony' });
 
 			const keys = node.keys();
 			expect(keys).toInclude(['name']);
@@ -191,39 +190,17 @@ describe('A node', () => {
 
 	});
 
-	describe('value update', () => {
-
-		it('should create a new property if none exists', () => {
-			node.update('name', 'Joe', now);
-			const value = node.read('name');
-			expect(value).toBe('Joe');
-		});
-
-		it('should return the `this` context', () => {
-			const result = node.update('name', 'Tim', now);
-			expect(result).toBe(node);
-		});
-
-		it('should set the updated state', () => {
-			node.update('name', 'Bob', now);
-
-			const state = node.state('name');
-			expect(state).toBe(now);
-		});
-
-		it('should namespace to avoid conflicts', () => {
-			node.update('update', 'not a function', now);
-			expect(node.update).toBeA(Function);
-		});
-
-	});
-
 	describe('merge', () => {
 
 		it('should return the `this` context', () => {
 			const incoming = Node.from({ stuff: true });
 			const result = node.merge(incoming);
 			expect(result).toBe(node);
+		});
+
+		it('should namespace to avoid conflicts', () => {
+			node.merge({ read: 'not a function' });
+			expect(node.read).toBeA(Function);
 		});
 
 		it('should convert POJOs into Nodes', () => {
@@ -246,7 +223,7 @@ describe('A node', () => {
 				node.merge(incoming);
 				expect(node.read('data')).toBe(false);
 
-				incoming.update('data', true, time());
+				incoming.merge({ data: true });
 				node.merge(incoming);
 
 				expect(node.read('data')).toBe(true);
@@ -288,10 +265,11 @@ describe('A node', () => {
 
 			it('should not more recent properties', () => {
 				// Stale update.
-				incoming.update('hello', 'Mars', time() - 10);
+				incoming.merge({ hello: 'Mars' });
+				incoming.meta('hello').state = time() - 10;
 
 				// Fresh state.
-				node.update('hello', 'World', time());
+				node.merge({ hello: 'World' });
 
 				node.merge(incoming);
 
@@ -301,7 +279,8 @@ describe('A node', () => {
 
 			it('should add new properties', () => {
 				// Really old state, but it's new to `node`.
-				incoming.update('success', true, time() - 100000);
+				incoming.merge({ success: true });
+				incoming.meta('success').state = time() - 100000;
 
 				node.merge(incoming);
 
@@ -309,8 +288,10 @@ describe('A node', () => {
 			});
 
 			it('should emit `historical` if updates are outdated', () => {
-				incoming.update('data', 'old state', time() - 10);
-				node.update('data', 'new state', time());
+				incoming.merge({ data: 'old state' });
+				incoming.meta('data').state = time() - 10;
+
+				node.merge({ data: 'new state' });
 
 				let emitted = false;
 				node.on('historical', (staleUpdates) => {
@@ -330,8 +311,10 @@ describe('A node', () => {
 					emitted = true;
 				});
 
-				incoming.update('new property', 'yeah', time() - 10);
-				node.update('hello', 'Earth', time());
+				incoming.merge({ 'new property': 'yeah' });
+				incoming.meta('new property').state = time() - 10;
+
+				node.merge({ hello: 'Earth' });
 
 				node.merge(incoming);
 
@@ -356,8 +339,10 @@ describe('A node', () => {
 			});
 
 			it('should not merge until that state is reached', (done) => {
-				incoming.update('future', true, time() + 5);
+				incoming.merge({ future: true });
+				incoming.meta('future').state = time() + 5;
 				node.merge(incoming);
+
 				expect(node.read('future')).toNotExist();
 
 				setTimeout(() => {
@@ -367,7 +352,8 @@ describe('A node', () => {
 			});
 
 			it('should retry the merge later, not overwrite', (done) => {
-				incoming.update('future', true, time() + 10);
+				incoming.merge({ future: true });
+				incoming.meta('future').state = time() + 10;
 				node.merge(incoming);
 
 				// If it's going through `merge`,
@@ -380,7 +366,8 @@ describe('A node', () => {
 
 			it('should emit `deferred` when deferred updates come in', () => {
 				let emitted = false;
-				incoming.update('future', true, time() + 10);
+				incoming.merge({ future: true });
+				incoming.meta('future').state = time() + 10;
 
 				node.on('deferred', (keys) => {
 					expect(keys.future).toExist();

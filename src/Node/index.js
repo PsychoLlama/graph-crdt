@@ -42,16 +42,17 @@ class Node extends Emitter {
 	 * @returns {Node} - A node interface constructed from the object.
 	 */
 	static 'from' (object) {
-		const node = Node.create();
-		const now = time();
+		const instance = Node.create();
+		const state = time();
 
 		for (const key in object) {
 			if (object.hasOwnProperty(key)) {
-				node.update(key, object[key], now);
+				const value = object[key];
+				instance[node][key] = { value, state };
 			}
 		}
 
-		return node;
+		return instance;
 	}
 
 	/**
@@ -174,22 +175,6 @@ class Node extends Emitter {
 	}
 
 	/**
-	 * Forcibly update a value on the node. Soon to
-	 * be deprecated in favor of ".merge()".
-	 *
-	 * @param  {String} field - The name of the property to update.
-	 * @param  {Mixed} value - Any arbitrary value.
-	 * @param  {Mixed} state - Anything that can be compared with
-	 * `<`, `>`, or `===`. Preferably date objects or an epoch timestamp.
-	 * Whatever is chosen, it MUST be consistent.
-	 * @returns {undefined}
-	 */
-	update (field, value, state) {
-		this[node][field] = { value, state };
-		return this;
-	}
-
-	/**
 	 * Get the state of the last update on a property.
 	 *
 	 * @param  {String} field - The name of the property.
@@ -255,8 +240,9 @@ class Node extends Emitter {
 			const { value, state: scheduled } = updates[key];
 
 			setTimeout(() => {
-				const incoming = Node.create();
-				incoming.update(key, value, state);
+				const incoming = Node.source({
+					[key]: { value, state },
+				});
 
 				this.merge(incoming);
 			}, scheduled - state);
@@ -300,7 +286,7 @@ class Node extends Emitter {
 			/** Updates each field. */
 			updateKeys.forEach((key) => {
 				const { value, state } = updates[key];
-				this.update(key, value, state);
+				this[node][key] = { value, state };
 			});
 
 			/** After finishing, the `update` event is fired. */
