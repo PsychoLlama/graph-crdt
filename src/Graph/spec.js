@@ -7,29 +7,6 @@ const expect = require('expect');
 
 describe('Graph static method', () => {
 
-	describe('"from"', () => {
-
-		it('should convert an object into a graph', () => {
-			const node = Node.create();
-			const result = Graph.from({
-				[node]: node,
-			});
-
-			expect(result).toBeA(Graph);
-			expect(result.keys().length).toBe(1);
-		});
-
-		it('should upgrade objects within into nodes', () => {
-			const result = Graph.from({
-				'uid': {},
-			});
-
-			const [key] = result.keys();
-			expect(result.raw(key)).toBeA(Node);
-		});
-
-	});
-
 	describe('"source"', () => {
 
 		it('should use the input as it\'s data source', () => {
@@ -178,7 +155,7 @@ describe('A graph', () => {
 			node1 = Node.create();
 			node2 = Node.create();
 
-			subgraph = Graph.from({
+			subgraph = Graph.source({
 				[node1]: node1,
 				[node2]: node2,
 			});

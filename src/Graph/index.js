@@ -26,10 +26,9 @@ class Graph extends Emitter {
 	}
 
 	/**
-	 * Imports a format compliant graph into a new one. Unlike
-	 * `Graph.from`, it expects nested nodes to use the node
-	 * metadata format. Useful for sending and importing graphs
-	 * over the network.
+	 * Imports a format compliant graph into a new one. It expects
+	 * nested nodes to use the node metadata format. Useful for
+	 * sending and importing graphs over the network.
 	 *
 	 * @param  {Object} object - The raw graph object.
 	 * @returns {Graph} - A new graph instance that consumes
@@ -55,30 +54,6 @@ class Graph extends Emitter {
 				const node = Node.source(value);
 				graph.add(node);
 			}
-		});
-
-		return graph;
-	}
-
-	/**
-	 * Turn an object with nodes in it into a graph.
-	 *
-	 * @param  {Object} object - An object with nothing
-	 * but nodes inside.
-	 * @returns {Graph} - A new graph containing all the nodes.
-	 */
-	static 'from' (object) {
-
-		// Create a new graph
-		const graph = Graph.create();
-
-		// For each node...
-		Object.keys(object).forEach((key) => {
-			const node = object[key];
-
-			// Add it to the new graph (.add assumes plain objects
-			// aren't already formatted).
-			graph.add(node);
 		});
 
 		return graph;
