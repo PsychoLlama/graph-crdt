@@ -16,7 +16,7 @@ describe('Graph static method', () => {
 			graph.add(node);
 
 			const copy = Graph.source(graph.toJSON());
-			expect(copy.raw('member').read('data')).toBe(true);
+			expect(copy.read('member').read('data')).toBe(true);
 		});
 
 		it('should source nested POJOs into nodes', () => {
@@ -30,7 +30,7 @@ describe('Graph static method', () => {
 			});
 
 			const [key] = graph.keys();
-			expect(graph.raw(key)).toBeA(Node);
+			expect(graph.read(key)).toBeA(Node);
 		});
 
 	});
@@ -119,7 +119,7 @@ describe('A graph', () => {
 			graph.add({ hello: 'graph' });
 
 			const [key] = graph.keys();
-			expect(graph.raw(key)).toBeA(Node);
+			expect(graph.read(key)).toBeA(Node);
 		});
 
 		it('should return the `this` context', () => {
@@ -140,7 +140,7 @@ describe('A graph', () => {
 		});
 
 		it('should return existing nodes', () => {
-			const result = graph.raw(node.toString());
+			const result = graph.read(node.toString());
 
 			expect(result).toBe(node);
 		});
@@ -176,7 +176,7 @@ describe('A graph', () => {
 			};
 			graph.merge(subgraph);
 
-			const result = graph.raw(node1.toString());
+			const result = graph.read(node1.toString());
 			expect(result.read('data')).toBe('preserved');
 		});
 

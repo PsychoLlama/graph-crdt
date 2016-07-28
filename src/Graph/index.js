@@ -71,7 +71,7 @@ class Graph extends Emitter {
 	 * @param  {String} key - The name/uid of the node.
 	 * @returns {Node|null} - The node if found, otherwise `null`.
 	 */
-	raw (key) {
+	read (key) {
 		return this[nodes][key] || null;
 	}
 
@@ -124,7 +124,7 @@ class Graph extends Emitter {
 
 		// Read each node from the update graph.
 		keys.forEach((key) => {
-			const node = graph.raw(key);
+			const node = graph.read(key);
 
 			// Add it to ours.
 			this.add(node);
