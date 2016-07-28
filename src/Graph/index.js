@@ -142,7 +142,7 @@ class Graph extends Emitter {
 
 		/** Ensure it's a graph. */
 		if (!(graph instanceof Graph)) {
-			graph = Graph.from(graph);
+			graph = Graph.source(graph);
 		}
 
 		const keys = graph.keys();

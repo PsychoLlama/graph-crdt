@@ -192,6 +192,17 @@ describe('A graph', () => {
 			expect(keys).toContain(node2.toString());
 		});
 
+		it('should assume sub-objects are already formatted', () => {
+			node1.merge({ data: 'preserved' });
+			subgraph = {
+				[node1]: node1.toJSON(),
+			};
+			graph.merge(subgraph);
+
+			const result = graph.raw(node1.toString());
+			expect(result.read('data')).toBe('preserved');
+		});
+
 		it('should return the `this` context', () => {
 			const result = graph.merge(subgraph);
 
