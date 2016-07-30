@@ -38,7 +38,7 @@ describe('Graph static method', () => {
 });
 
 describe('A graph', () => {
-	let graph;
+	let graph = 'not yet defined.';
 
 	beforeEach(() => {
 		graph = Graph.create();
@@ -184,6 +184,99 @@ describe('A graph', () => {
 			const result = graph.merge(subgraph);
 
 			expect(result).toBe(graph);
+		});
+
+	});
+
+	describe('alias', () => {
+
+		const node = Node.create();
+
+		it('should create an aggregate node none can be found', () => {
+			graph.alias('users', node);
+
+			const result = graph.read('users');
+
+			expect(result).toBeA(Node);
+			const { aggregate } = result.meta();
+			expect(aggregate).toBe(true);
+		});
+
+		it('should add the aliased node to the aggregate', () => {
+			graph.alias('users', node);
+
+			const aggregate = graph.read('users');
+			const { uid } = node.meta();
+
+			expect(aggregate.read(uid)).toExist();
+		});
+
+		it('should merge with an aggregate if it exists', () => {
+			graph.alias('users', node);
+
+			// Add another node.
+			graph.alias('users', Node.create());
+
+			const result = graph.read('users');
+			expect(result.keys().length).toBe(2);
+		});
+
+		it('should add the value to the graph', () => {
+			graph.alias('users', node);
+			const result = graph.read(node.meta().uid);
+			expect(result).toBeA(Node);
+		});
+
+		it('should return the `this` context', () => {
+			const result = graph.alias('things', node);
+			expect(result).toBe(graph);
+		});
+
+	});
+
+	describe('aggregate', () => {
+
+		const node1 = Node.create().merge({
+			prop1: 'node1',
+		});
+		const node2 = Node.create().merge({
+			prop2: 'node2',
+		});
+
+		beforeEach(() => {
+			graph.alias('nodes', node1);
+			graph.alias('nodes', node2);
+		});
+
+		it('should merge nodes in an aggregate', () => {
+			const result = graph.aggregate('nodes');
+			const keys = result.keys();
+			expect(keys).toContain('prop1');
+			expect(keys).toContain('prop2');
+		});
+
+		it('should return `null` if no aggregate is found', () => {
+			const result = graph.aggregate('no such aggregate');
+			expect(result).toBe(null);
+		});
+
+		it('should reuse a node contained in the aggregate', () => {
+			const result = graph.aggregate('nodes');
+			const ids = [
+				node1.meta().uid,
+				node2.meta().uid,
+			];
+			expect(ids).toContain(result.meta().uid);
+		});
+
+		it('should only merge nodes if the pointer is truthy', () => {
+			const aggregate = graph.read('nodes');
+			aggregate.merge({
+				[node1]: false,
+			});
+
+			const result = graph.aggregate('nodes');
+			expect(result.keys()).toEqual(['prop2']);
 		});
 
 	});
