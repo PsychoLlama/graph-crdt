@@ -25,7 +25,8 @@
   "dependencies": {
     "es6-symbol": "^3.1.0",
     "eventemitter3": "^1.2.0",
-    "merge-helper": "^1.0.0"
+    "merge-helper": "^1.0.0",
+    "uuid": "^2.0.2"
   },
   "repository": {
     "type": "git",

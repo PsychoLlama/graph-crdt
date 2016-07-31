@@ -18,7 +18,7 @@ You have a few options:
  - **Use a CRDT**<br />
  CRDTs ([Commutative Replicated Data Types](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)) are similar to the option above, but come with additional guarantees: regardless of the order which updates are received in, every machine will arrive at the exact same result *every time*, and if implemented correctly, make merge conflicts impossible.
 
-This library opts for the latter, implementing a delta state graph CRDT. However, as fuzzy as they've been portrayed, there are some cons (some specific to this library):
+This library opts for the latter, implementing a delta state graph CRDT. However, as great as they may seem, there are some cons (some specific to this library):
 
  - You need more data.<br />
  Merges need a state integer on each field.

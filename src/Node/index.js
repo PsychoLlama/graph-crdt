@@ -8,13 +8,10 @@ const Symbol = require('es6-symbol');
 const diff = require('merge-helper');
 const Emitter = require('eventemitter3');
 const time = require('../time');
+const { v4: uid } = require('uuid');
 
 const node = Symbol('source object');
 const defer = Symbol('defer method');
-
-let alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-alphanumeric += alphanumeric.toLowerCase();
-alphanumeric += '0123456789';
 
 /**
  * An observable object with conflict-resolution.
@@ -60,42 +57,6 @@ class Node extends Emitter {
 	}
 
 	/**
-	 * Generate a random string of characters.
-	 *
-	 * @param {Object} [options] - An options object.
-	 * @param  {String|Array} [options.charset] - The symbols to choose from.
-	 * The default character set is mixed-case alphanumeric.
-	 * @param  {Number} [options.length] - The number of characters to generate.
-	 * Defaults to 24.
-	 * @returns {String} - The finished string.
-	 */
-	static uid ({ charset = alphanumeric, length = 24 } = {}) {
-
-		// Immediately invoked, recursively calls itself.
-		return (function recurse (length, string) {
-
-			// Base case.
-			if (length <= 0) {
-				return string;
-			}
-
-			/** Finds a random character. */
-			const random = Math.random() * charset.length;
-
-			/** Rounds it down. */
-			const index = Math.floor(random);
-
-			/** Chooses that character. */
-			const char = charset[index];
-
-			/** Do it again. */
-			return recurse(length - 1, string + char);
-
-		}(length, ''));
-
-	}
-
-	/**
 	 * Take an object and use it as the data source for a new
 	 * node. This method is used with properly formatted
 	 * objects, such as stringified, then parsed node instances.
@@ -129,7 +90,7 @@ class Node extends Emitter {
 
 		this[node] = {
 			[this.legend.metadata]: {
-				uid: config.uid || Node.uid(),
+				uid: config.uid || uid(),
 			},
 		};
 	}

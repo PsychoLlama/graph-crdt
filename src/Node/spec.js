@@ -40,40 +40,6 @@ describe('Node static method', () => {
 
 	});
 
-	describe('"uid"', () => {
-
-		let uid;
-
-		beforeEach(() => {
-			uid = Node.uid();
-		});
-
-		it('should default the length to 24 characters', () => {
-			expect(uid.length).toBe(24);
-		});
-
-		it('should allow you to override the length', () => {
-			uid = Node.uid({ length: 10 });
-			expect(uid.length).toBe(10);
-		});
-
-		it('should allow you to specify the charset', () => {
-			uid = Node.uid({
-				charset: 'J',
-				length: 2,
-			});
-			expect(uid).toBe('JJ');
-		});
-
-		it('should return an empty string if length < 0', () => {
-			uid = Node.uid({
-				length: -10,
-			});
-			expect(uid).toBe('');
-		});
-
-	});
-
 	describe('"source"', () => {
 
 		it('should create a node that draws from an object', () => {
