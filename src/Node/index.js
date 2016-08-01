@@ -8,7 +8,7 @@ const Symbol = require('es6-symbol');
 const diff = require('merge-helper');
 const Emitter = require('eventemitter3');
 const time = require('../time');
-const { v4: uid } = require('uuid');
+const { v4: uuid } = require('uuid');
 
 const node = Symbol('source object');
 const defer = Symbol('defer method');
@@ -83,15 +83,10 @@ class Node extends Emitter {
 
 		super();
 
-		/** Lookup table for reserved symbols. */
-		this.legend = {
-			metadata: '@object',
-		};
+		const uid = config.uid || uuid();
 
 		this[node] = {
-			[this.legend.metadata]: {
-				uid: config.uid || uid(),
-			},
+			'@object': { uid },
 		};
 	}
 
@@ -125,7 +120,7 @@ class Node extends Emitter {
 	 * on reserved fields (like "@object").
 	 */
 	read (field) {
-		if (field === this.legend.metadata) {
+		if (field === '@object') {
 			return undefined;
 		}
 
@@ -169,7 +164,7 @@ class Node extends Emitter {
 		const object = this[node];
 
 		/** Gets a reference to the metadata symbol. */
-		const { metadata: meta } = this.legend;
+		const meta = '@object';
 
 		/** Iteratively add each key to the results. */
 		for (const key in object) {

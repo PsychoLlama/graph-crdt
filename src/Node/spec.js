@@ -156,7 +156,7 @@ describe('A node', () => {
 			// Please, never do this in your code.
 			node.meta().value = 'failure!';
 
-			const result = node.read(node.legend.metadata);
+			const result = node.read('@object');
 			expect(result).toBe(undefined);
 		});
 
