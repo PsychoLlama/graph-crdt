@@ -181,7 +181,7 @@ class Node extends Emitter {
 	/**
 	 * List all the values in a node.
 	 *
-	 * @returns {Array} - The list of values.
+	 * @returns {Mixed[]} - The list of values.
 	 */
 	values () {
 		return this.keys().map((key) => this.read(key));
@@ -190,7 +190,7 @@ class Node extends Emitter {
 	/**
 	 * Return a list of keys and values, just like `Object.entries`.
 	 *
-	 * @returns {Array} - A list of key-value pairs.
+	 * @returns {Array[]} - A list of key-value pairs.
 	 */
 	entries () {
 		return this.keys().map((key) => {

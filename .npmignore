@@ -1,2 +1,6 @@
 # Only publish compiled code.
 src/
+
+docs/
+index.html
+bundle.js

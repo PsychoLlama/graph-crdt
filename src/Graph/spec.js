@@ -60,6 +60,65 @@ describe('A graph', () => {
 		expect(string).toContain('intact');
 	});
 
+	describe('key list', () => {
+
+		it('should return all the ids in the graph', () => {
+			graph.add({ property: 'value' });
+
+			const keys = graph.keys();
+			const [key] = keys;
+
+			expect(keys.length).toBe(1);
+			expect(graph.read(key)).toBeA(Node);
+		});
+
+	});
+
+	describe('value list', () => {
+
+		it('should return every node in the graph', () => {
+			graph.add({ property: 'value' });
+			const values = graph.values();
+			const [node] = values;
+
+			expect(node).toBeA(Node);
+			expect(values.length).toBe(1);
+		});
+
+	});
+
+	describe('entries list', () => {
+
+		beforeEach(() => {
+			graph.add({ property: 'value' });
+		});
+
+		it('should return a list of key-value arrays', () => {
+			const entries = graph.entries();
+
+			expect(entries.length).toBe(1);
+
+			entries.forEach((entry) => {
+				expect(entry).toBeAn(Array);
+			});
+
+		});
+
+		it('should contain the same keys as `.keys()`', () => {
+			const entryKeys = graph.entries().map(([key]) => key);
+			const sortedKeys = graph.keys().sort();
+
+			expect(entryKeys.sort()).toEqual(sortedKeys);
+		});
+
+		it('should contain the same values as `.values()`', () => {
+			const sortedValues = graph.values().sort();
+			const entryValues = graph.entries().map(([, value]) => value);
+			expect(entryValues).toEqual(sortedValues);
+		});
+
+	});
+
 	describe('"add" call', () => {
 
 		let node;

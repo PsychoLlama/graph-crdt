@@ -194,11 +194,33 @@ class Graph extends Emitter {
 		return Object.keys(this[nodes]);
 	}
 
+	/**
+	 * Get a list of all nodes in the graph.
+	 *
+	 * @returns {String[]} - A list of nodes.
+	 */
+	values () {
+		return this.keys().map((key) => this.read(key));
+	}
+
+	/**
+	 * Get a list of key-value pairs in the graph.
+	 *
+	 * @returns {Array} - A list of key-value pairs.
+	 */
+	entries () {
+		return this.keys().map((key) => {
+			const value = this.read(key);
+			return [key, value];
+		});
+	}
+
 	/* Coercion interfaces */
 
 	/**
 	 * Used to serialize a graph (JSON.stringify will calls this method).
 	 *
+	 * @private
 	 * @returns {Object} - The hidden collection of nodes.
 	 */
 	toJSON () {
