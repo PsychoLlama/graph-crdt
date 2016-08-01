@@ -3,3 +3,7 @@ node_modules/
 npm-debug.log
 docs/
 dist/
+
+# In-browser testing
+bundle.js
+index.html
