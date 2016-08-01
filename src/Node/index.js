@@ -179,6 +179,31 @@ class Node extends Emitter {
 	}
 
 	/**
+	 * List all the values in a node.
+	 *
+	 * @returns {Array} - The list of values.
+	 */
+	values () {
+		return this.keys().map((key) => this.read(key));
+	}
+
+	/**
+	 * Return a list of keys and values, just like `Object.entries`.
+	 *
+	 * @returns {Array} - A list of key-value pairs.
+	 */
+	entries () {
+		return this.keys().map((key) => {
+
+			/** The value at that key. */
+			const value = this.read(key);
+
+			/** Map to a key-value pair. */
+			return [key, value];
+		});
+	}
+
+	/**
 	 * Schedule updates that have been deferred.
 	 *
 	 * @private
