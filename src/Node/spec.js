@@ -162,6 +162,65 @@ describe('A node', () => {
 
 	});
 
+	describe('value lookup', () => {
+
+		beforeEach(() => {
+			node.merge({
+				property: 'property 1',
+			});
+		});
+
+		it('should exclude the object metadata', () => {
+			const values = node.values();
+			expect(values).toNotContain(node.meta());
+		});
+
+		it('should contain all node values', () => {
+			const values = node.values();
+			expect(values).toContain('property 1');
+		});
+
+	});
+
+	describe('entries list', () => {
+
+		let entries;
+
+		beforeEach(() => {
+			node.merge({
+				property1: 'value 1',
+				property2: 'value 2',
+			});
+
+			entries = node.entries();
+		});
+
+		it('should return a list of arrays', () => {
+			entries.forEach((entry) => expect(entry).toBeAn(Array));
+		});
+
+		it('should ignore the metadata', () => {
+			entries.forEach((entry) => {
+				expect(entry).toNotContain('@object');
+			});
+		});
+
+		it('should contain the same keys as `.keys()`', () => {
+			const keys = node.keys();
+			const copy = entries.map((entry) => entry[0]);
+
+			// Sorted to prevent sort inequalities.
+			expect(keys.sort()).toEqual(copy.sort());
+		});
+
+		it('should contain the same values as `.values()`', () => {
+			const values = node.values();
+			const copy = entries.map((entry) => entry[1]);
+			expect(values.sort()).toEqual(copy.sort());
+		});
+
+	});
+
 	describe('merge', () => {
 
 		it('should return the `this` context', () => {
