@@ -1,9 +1,7 @@
-'use strict';
-
-const { describe, it, beforeEach } = require('mocha');
-const expect = require('expect');
-const Node = require('./index');
-const time = require('../time');
+import { describe, it, beforeEach } from 'mocha';
+import expect from 'expect';
+import Node from './index';
+import time from '../time';
 
 describe('Node static method', () => {
 

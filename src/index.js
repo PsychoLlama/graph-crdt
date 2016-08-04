@@ -1,12 +1,8 @@
-'use strict';
+import Graph from './Graph';
+import Node from './Node';
 
-const Graph = require('./Graph');
-const Node = require('./Node');
-
-const result = module.exports = { Graph, Node };
-
-result.default = result;
+export { Graph, Node };
 
 if (typeof window !== 'undefined') {
-	Object.assign(window, result);
+	Object.assign(window, { Graph, Node });
 }

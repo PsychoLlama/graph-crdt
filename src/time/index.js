@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @module graph-datastore.time
  * @private
@@ -33,4 +31,4 @@ function time () {
 	return last;
 }
 
-module.exports = time;
+export default time;

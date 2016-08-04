@@ -1,12 +1,9 @@
-'use strict';
-
 /**
  * @module graph-datastore.Graph
  */
 
-const Emitter = require('eventemitter3');
-const Node = require('../Node');
-const Symbol = require('es6-symbol');
+import Emitter from 'eventemitter3';
+import Node from '../Node';
 
 const nodes = Symbol('graph node container');
 
@@ -15,7 +12,7 @@ const nodes = Symbol('graph node container');
  *
  * @class
  */
-class Graph extends Emitter {
+export default class Graph extends Emitter {
 
 	/**
 	 * Instantiates a graph without needing `new`.
@@ -228,5 +225,3 @@ class Graph extends Emitter {
 	}
 
 }
-
-module.exports = Graph.default = Graph;

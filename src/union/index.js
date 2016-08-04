@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Deterministic merge algorithm.
  *
@@ -31,7 +29,7 @@ function isObject (value) {
  * @param  {field2} field2 - Field metadata for the update.
  * @returns {field1|field2} - The field that wins the conflict.
  */
-function conflict (field1, field2) {
+export function conflict (field1, field2) {
 	const { value: current } = field1;
 	const { value: update } = field2;
 
@@ -112,5 +110,3 @@ string.current: "${string.current}"
 string.update: "${string.update}"`
 	);
 }
-
-module.exports = { conflict };

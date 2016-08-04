@@ -1,10 +1,8 @@
 /* eslint-disable require-jsdoc*/
-'use strict';
-
-const { describe, it, beforeEach } = require('mocha');
-const expect = require('expect');
+import { describe, it, beforeEach } from 'mocha';
+import expect from 'expect';
+import { conflict } from './index';
 const { createSpy } = expect;
-const { conflict } = require('./index');
 
 describe('A union', () => {
 

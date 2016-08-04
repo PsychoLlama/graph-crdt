@@ -6,6 +6,9 @@ module.exports = {
 		"es6": true
 	},
 	"extends": "eslint:recommended",
+	"parserOptions": {
+		"sourceType": "module"
+	},
 	"rules": {
 		"accessor-pairs": "error",
 		"array-bracket-spacing": [

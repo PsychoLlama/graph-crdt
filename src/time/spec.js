@@ -1,8 +1,6 @@
-'use strict';
-
-const { describe, it } = require('mocha');
-const expect = require('expect');
-const time = require('./index');
+import { describe, it } from 'mocha';
+import expect from 'expect';
+import time from './index';
 
 describe('The time function', function () {
 

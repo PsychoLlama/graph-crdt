@@ -1,14 +1,11 @@
-'use strict';
-
 /**
  * @module graph-datastore.Node
  */
 
-const Symbol = require('es6-symbol');
-const diff = require('merge-helper');
-const Emitter = require('eventemitter3');
-const time = require('../time');
-const { v4: uuid } = require('uuid');
+import diff from 'merge-helper';
+import Emitter from 'eventemitter3';
+import time from '../time';
+import { v4 as uuid } from 'uuid';
 
 const node = Symbol('source object');
 const defer = Symbol('defer method');
@@ -21,7 +18,7 @@ const defer = Symbol('defer method');
  * @param  {Object} [config.uid] - Override the randomly generated
  * node uid.
  */
-class Node extends Emitter {
+export default class Node extends Emitter {
 
 	/**
 	 * Creates a new Node instance without using
@@ -312,5 +309,3 @@ class Node extends Emitter {
 		return this[node];
 	}
 }
-
-module.exports = Node.default = Node;
