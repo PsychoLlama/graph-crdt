@@ -23,6 +23,8 @@ function isObject (value) {
 /**
  * Deterministically resolves merge conflicts.
  *
+ * NOTE: Only subsets of JSON are supported.
+ *
  * @throws {Error} - If an unplanned edge case is reached, debugging
  * information is thrown. Realistically, it should never happen.
  * @param  {field1} field1 - Field metadata for the current state.
@@ -70,43 +72,30 @@ export function conflict (field1, field2) {
 	}
 
 	// Neither is an object. Compare the string value.
-	const string = {
+	const json = {
 		current: JSON.stringify(current),
 		update: JSON.stringify(update),
 	};
 
 	// Compare values lexicographically.
-	if (string.current > string.update) {
+	if (json.current > json.update) {
 		return field1;
 	}
-	if (string.update > string.current) {
-		return field2;
-	}
-
-	// Both strings are equivalent. Compare types.
-	const type = {
-		current: typeof current,
-		update: typeof update,
-	};
-
-	// Favor the string (case reached by "5" vs 5).
-	if (type.current === 'string') {
-		return field1;
-	}
-	if (type.update === 'string') {
+	if (json.update > json.current) {
 		return field2;
 	}
 
 	throw new Error(
-`There's an edge case in the conflict resolution.
-A lot has been invested to make sure this never happens.
-Please open an issue at
+`Cannot resolve merge conflict on invalid JSON.
+
+If the data is valid JSON, please open an issue at
 https://github.com/PsychoLlama/merge-helper/issues
 and include the following debugging information:
-typeof current: "${type.current}"
-typeof update: "${type.update}"
-> If the data below is sensitive, you can omit it.
-string.current: "${string.current}"
-string.update: "${string.update}"`
+typeof current: "${typeof current}"
+typeof update: "${typeof update}"
+
+> If the following is sensitive, you can omit it.
+json.current: "${json.current}"
+json.update: "${json.update}"`
 	);
 }
