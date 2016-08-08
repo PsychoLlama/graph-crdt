@@ -1,7 +1,8 @@
 import { describe, it, beforeEach } from 'mocha';
-import expect from 'expect';
 import Node from './index';
 import time from '../time';
+import expect from 'expect';
+const { createSpy } = expect;
 
 describe('Node static method', () => {
 
@@ -259,27 +260,24 @@ describe('A node', () => {
 			});
 
 			it('should emit `update` after updates', () => {
-				let emitted = false;
-				node.on('update', (state) => {
-					expect(state.data).toExist();
-					emitted = true;
-				});
+				const spy = createSpy();
+				node.on('update', spy);
 
 				node.merge({ data: 'yep' });
 
-				expect(emitted).toBe(true);
+				expect(spy).toHaveBeenCalledWith({
+					data: node.meta('data'),
+				});
 			});
 
 			it('should not emit `update` without updates', () => {
-				let emitted = false;
-				node.on('update', () => {
-					emitted = true;
-				});
+				const spy = createSpy();
+				node.on('update', spy);
 
 				// No properties.
 				node.merge({});
 
-				expect(emitted).toBe(false);
+				expect(spy).toNotHaveBeenCalled();
 			});
 
 		});
@@ -322,23 +320,19 @@ describe('A node', () => {
 
 				node.merge({ data: 'new state' });
 
-				let emitted = false;
-				node.on('historical', (staleUpdates) => {
-					expect(staleUpdates.data).toExist();
-					emitted = true;
-				});
+				const spy = createSpy();
+				node.on('historical', spy);
 
 				node.merge(incoming);
-
-				expect(emitted).toBe(true);
+				expect(spy).toHaveBeenCalledWith({
+					data: node.meta('data'),
+				});
 			});
 
 			it('should not emit `historical` without stale updates', () => {
 
-				let emitted = false;
-				node.on('historical', () => {
-					emitted = true;
-				});
+				const spy = createSpy();
+				node.on('historical', spy);
 
 				incoming.merge({ 'new property': 'yeah' });
 				incoming.meta('new property').state = time() - 10;
@@ -347,7 +341,7 @@ describe('A node', () => {
 
 				node.merge(incoming);
 
-				expect(emitted).toBe(false);
+				expect(spy).toNotHaveBeenCalled();
 
 			});
 
@@ -394,27 +388,24 @@ describe('A node', () => {
 			});
 
 			it('should emit `deferred` when deferred updates come in', () => {
-				let emitted = false;
+				const spy = createSpy();
 				incoming.merge({ future: true });
 				incoming.meta('future').state = time() + 10;
 
-				node.on('deferred', (keys) => {
-					expect(keys.future).toExist();
-					emitted = true;
-				});
+				node.on('deferred', spy);
 
 				node.merge(incoming);
-				expect(emitted).toBe(true);
+				expect(spy).toHaveBeenCalledWith({
+					future: incoming.meta('future'),
+				});
 			});
 
 			it('should not emit `deferred` without deferred updates', () => {
-				let emitted = false;
-				node.on('deferred', () => {
-					emitted = true;
-				});
+				const spy = createSpy();
+				node.on('deferred', spy);
 
 				node.merge({ data: true });
-				expect(emitted).toBe(false);
+				expect(spy).toNotHaveBeenCalled();
 			});
 
 		});

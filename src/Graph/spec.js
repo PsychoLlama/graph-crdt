@@ -2,6 +2,7 @@ import { describe, it, beforeEach } from 'mocha';
 import Graph from '../Graph';
 import Node from '../Node';
 import expect from 'expect';
+const { createSpy } = expect;
 
 describe('Graph static method', () => {
 
@@ -133,14 +134,11 @@ describe('A graph', () => {
 		});
 
 		it('should emit `add` if it\'s a new node', () => {
-			let emitted = false;
-			graph.on('add', (addition) => {
-				expect(addition).toBe(node);
-				emitted = true;
-			});
+			const spy = createSpy();
+			graph.on('add', spy);
 
 			graph.add(node);
-			expect(emitted).toBe(true);
+			expect(spy).toHaveBeenCalledWith(node);
 		});
 
 		it('should not emit `add` if the node was already added', () => {
@@ -148,15 +146,13 @@ describe('A graph', () => {
 			// Add the node the first time...
 			graph.add(node);
 
-			let emitted = false;
-			graph.on('add', () => {
-				emitted = true;
-			});
+			const spy = createSpy();
+			graph.on('add', spy);
 
 			// It's already there. Shouldn't fire.
 			graph.add(node);
 
-			expect(emitted).toBe(false);
+			expect(spy).toNotHaveBeenCalled();
 		});
 
 		it('should merge nodes with the same uid', () => {
