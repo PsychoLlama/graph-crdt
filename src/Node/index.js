@@ -2,10 +2,10 @@
  * @module graph-datastore.Node
  */
 
-import diff from 'merge-helper';
 import Emitter from 'eventemitter3';
 import time from '../time';
 import { v4 as uuid } from 'uuid';
+import { state } from '../union';
 
 const node = Symbol('source object');
 const defer = Symbol('defer method');
@@ -204,79 +204,83 @@ export default class Node extends Emitter {
 	 * Schedule updates that have been deferred.
 	 *
 	 * @private
-	 * @param  {Object} updates - A description of all deferred
-	 * keys and their metadata.
-	 * @param  {Number|Date} state - The state the machine is running at.
-	 * Preferably a Date or epoch timestamp.
+	 * @param  {String} key - The key to defer.
+	 * @param  {Object} deferred - The value/state to defer.
+	 * @param  {Number} clock - The current system time.
 	 * @returns {undefined}
 	 */
-	[defer] (updates, state) {
-		const keys = Object.keys(updates);
+	[defer] (key, deferred, clock) {
 
-		// If there aren't any deferred updates, quit.
-		if (!keys.length) {
-			return;
-		}
+		const { value, state } = deferred;
 
-		keys.forEach((key) => {
-			const { value, state: scheduled } = updates[key];
+		setTimeout(() => {
+			const incoming = Node.source({
+				[key]: { value, state },
+			});
 
-			setTimeout(() => {
-				const incoming = Node.source({
-					[key]: { value, state },
-				});
-
-				this.merge(incoming);
-			}, scheduled - state);
-		});
-
-		this.emit('deferred', updates);
+			this.merge(incoming);
+		}, state - clock);
 	}
 
 	/**
 	 * merge - description
 	 *
-	 * @param  {Node|Object} update - The node to merge from.
+	 * @param  {Node} incoming - The node to merge from.
 	 * If a plain object is passed, it will be upgraded to a node
 	 * using `Node.from`.
-	 * @param  {Number|Date} [state] - Override the system clock.
-	 * Useful for reverting to an earlier snapshot.
 	 * @returns {Node} - The `this` context.
 	 */
-	merge (update, state) {
+	merge (incoming) {
 
-		if (!(update instanceof Node)) {
-			update = Node.from(update);
+		if (!(incoming instanceof Node)) {
+			incoming = Node.from(incoming);
 		}
 
-		if (state === undefined) {
-			state = time();
+		const clock = time();
+		const history = {};
+		const updates = {};
+		const future = {};
+		let overwritten = false;
+		let changed = false;
+		let deferring = false;
+
+		incoming.keys().forEach((key) => {
+			const current = this.meta(key);
+			const next = incoming.meta(key);
+			const timeline = { [next.state]: next };
+
+			if (current) {
+				timeline[current.state] = current;
+			}
+
+			const { update, deferred } = state(timeline, clock);
+
+			if (update && update !== current) {
+				updates[key] = this[node][key] = update;
+				changed = true;
+			}
+
+			if (current) {
+				history[key] = current;
+				overwritten = true;
+			}
+
+			if (deferred) {
+				future[key] = deferred;
+				this[defer](key, deferred, clock);
+				deferring = true;
+			}
+		});
+
+		if (overwritten) {
+			this.emit('historical', history);
 		}
-
-		const result = diff(this[node], update[node], state);
-
-		const { historical, updates, deferred } = result;
-
-		const updateKeys = Object.keys(updates);
-
-		if (Object.keys(historical).length) {
-			this.emit('historical', historical);
-		}
-
-		if (updateKeys.length) {
-
-			/** Updates each field. */
-			updateKeys.forEach((key) => {
-				const { value, state } = updates[key];
-				this[node][key] = { value, state };
-			});
-
-			/** After finishing, the `update` event is fired. */
+		if (changed) {
 			this.emit('update', updates);
 		}
-
-		/** Handles deferred updates. */
-		this[defer](deferred, state);
+		if (deferring) {
+			this.emit('deferred', future);
+		}
 
 		return this;
 
