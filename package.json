@@ -1,7 +1,7 @@
 {
-  "name": "graph-datastore",
+  "name": "graph-crdt",
   "version": "0.0.1",
-  "description": "Graph database tools",
+  "description": "A Delta State Graph CRDT variant",
   "main": "dist/index.js",
   "scripts": {
     "prepublish": "npm run build",
@@ -12,9 +12,11 @@
   },
   "keywords": [
     "graph",
-    "database",
-    "tools",
-    "conflict-resolution"
+    "crdt",
+    "strong-eventual-consistency",
+    "conflict-resolution",
+		"distributed",
+		"observable"
   ],
   "author": "Jesse Gibson <jesse@gundb.io> (http://techllama.com)",
   "license": "UNLICENSED",
@@ -30,7 +32,6 @@
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
-    "es6-symbol": "^3.1.0",
     "eventemitter3": "^1.2.0",
     "uuid": "^2.0.2"
   },

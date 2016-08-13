@@ -1,5 +1,7 @@
 # Distributed Graph Engine
 
+> graph-crdt is a **work in progress** with frequent breaking changes.
+
 Designed for serializing arbitrary data structures, making offline edits, and seamlessly merging changes back in. All data is observable and event driven.
 
 # What for?
@@ -28,3 +30,16 @@ This library opts for the latter, implementing a delta state graph CRDT. However
 
  - It only plays nice with other CRDTs.<br />
  To merge two states, both must have the CRDT metadata (though this library allows you to upgrade nearly any data).
+
+## Features
+ - Commutative, idempotent, conflict-resolved `Graph`/`Node` unions.
+ - Observable mutations.
+
+## Roadmap
+ 1. Opt-in field history.
+ 2. Time travel (when journaling is enabled).
+ 3. Delta emission on `Graph`/`Node` unions.
+ 4. Conflict-resolved secondary indices.
+ 5. Node/field tombstones.
+ 6. Immutable metadata API.
+ 7. Opt-in persisted history.
