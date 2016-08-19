@@ -1,4 +1,5 @@
 # Distributed Graph Engine
+[![Travis branch](https://img.shields.io/travis/PsychoLlama/graph-crdt/master.svg?style=flat-square)](https://travis-ci.org/PsychoLlama/graph-crdt)
 
 > graph-crdt is a **work in progress** with frequent breaking changes.
 
