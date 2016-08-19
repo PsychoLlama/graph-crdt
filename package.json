@@ -19,7 +19,6 @@
     "observable"
   ],
   "author": "Jesse Gibson <jesse@gundb.io> (http://techllama.com)",
-  "license": "UNLICENSED",
   "devDependencies": {
     "babel-cli": "^6.11.4",
     "babel-plugin-transform-runtime": "^6.12.0",
@@ -35,14 +34,6 @@
     "eventemitter3": "^1.2.0",
     "uuid": "^2.0.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PsychoLlama/graph-datastore.git"
-  },
-  "bugs": {
-    "url": "https://github.com/PsychoLlama/graph-datastore/issues"
-  },
-  "homepage": "https://github.com/PsychoLlama/graph-datastore#readme",
   "babel": {
     "presets": [
       "es2015"
@@ -50,5 +41,17 @@
     "plugins": [
       "transform-runtime"
     ]
-  }
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PsychoLlama/graph-crdt.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PsychoLlama/graph-crdt/issues"
+  },
+  "homepage": "https://github.com/PsychoLlama/graph-crdt#readme"
 }
