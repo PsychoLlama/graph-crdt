@@ -6,7 +6,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "mocha": "mocha --opts ./mocha.opts",
-    "build": "babel src/ -d dist/",
+    "build": "babel src/ -d dist/ --ignore **/*spec.js",
     "test": "npm run mocha src/",
     "doc": "jsdoc --configure jsdoc.config.json"
   },
@@ -15,8 +15,8 @@
     "crdt",
     "strong-eventual-consistency",
     "conflict-resolution",
-		"distributed",
-		"observable"
+    "distributed",
+    "observable"
   ],
   "author": "Jesse Gibson <jesse@gundb.io> (http://techllama.com)",
   "license": "UNLICENSED",
