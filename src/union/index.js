@@ -2,7 +2,7 @@
  * Utilities for deterministically merging node attributes.
  *
  * @private
- * @module graph-datastore/src/union
+ * @module graph-crdt/src/union
  */
 
 /**

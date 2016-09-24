@@ -1,5 +1,5 @@
 /**
- * @module graph-datastore.Graph
+ * @module graph-crdt.Graph
  */
 
 import Emitter from 'eventemitter3';
@@ -10,7 +10,7 @@ const nodes = Symbol('graph node container');
 /**
  * Container and interface for groups of nodes.
  *
- * @class
+ * @class Graph
  */
 export default class Graph extends Emitter {
 

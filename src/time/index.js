@@ -1,5 +1,5 @@
 /**
- * @module graph-datastore.time
+ * @module graph-crdt.time
  * @private
  */
 

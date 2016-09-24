@@ -1,5 +1,5 @@
 /**
- * @module graph-datastore.Node
+ * @module graph-crdt.Node
  */
 
 import Emitter from 'eventemitter3';
