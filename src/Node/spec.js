@@ -6,410 +6,410 @@ const { createSpy } = expect;
 
 describe('Node static method', () => {
 
-	describe('"from"', function () {
+  describe('"from"', function () {
 
-		// Using system time can cause race conditions.
-		this.retries(1);
+   // Using system time can cause race conditions.
+    this.retries(1);
 
-		it('should turn a POJO into a node', () => {
-			const node = Node.from({});
+    it('should turn a POJO into a node', () => {
+      const node = Node.from({});
 
-			expect(node).toBeA(Node);
-		});
+      expect(node).toBeA(Node);
+    });
 
-		it('should import the properties from the target object', () => {
-			const date = new Date('1 Jan 1980');
-			const node = Node.from({
-				name: 'Sam',
-				birthday: date,
-			});
+    it('should import the properties from the target object', () => {
+      const date = new Date('1 Jan 1980');
+      const node = Node.from({
+        name: 'Sam',
+        birthday: date,
+      });
 
-			expect(node.read('name')).toBe('Sam');
-			expect(node.read('birthday')).toBe(date);
-		});
+      expect(node.read('name')).toBe('Sam');
+      expect(node.read('birthday')).toBe(date);
+    });
 
-		it('should set the state to the current time', () => {
-			const now = new Date().getTime();
-			const node = Node.from({ name: 'Alvin' });
+    it('should set the state to the current time', () => {
+      const now = new Date().getTime();
+      const node = Node.from({ name: 'Alvin' });
 
-			expect(node.state('name'))
-				.toBeLessThan(now + 5)
-				.toBeGreaterThan(now - 5);
-		});
+      expect(node.state('name'))
+      .toBeLessThan(now + 5)
+      .toBeGreaterThan(now - 5);
+    });
 
-	});
+  });
 
-	describe('"source"', () => {
+  describe('"source"', () => {
 
-		it('should create a node that draws from an object', () => {
-			const node = Node.create().merge({ data: 'intact' });
-			const string = JSON.stringify(node);
-			const object = JSON.parse(string);
-			const copy = Node.source(object);
-			expect(copy.read('data')).toBe('intact');
-		});
+    it('should create a node that draws from an object', () => {
+      const node = Node.create().merge({ data: 'intact' });
+      const string = JSON.stringify(node);
+      const object = JSON.parse(string);
+      const copy = Node.source(object);
+      expect(copy.read('data')).toBe('intact');
+    });
 
-	});
+  });
 
 });
 
 describe('A node', () => {
 
-	let node;
+  let node;
 
-	beforeEach(() => {
-		node = Node.create();
-	});
+  beforeEach(() => {
+    node = Node.create();
+  });
 
-	/* Generic tests */
-	it('should not have properties upon creation', () => {
-		const keys = node.keys();
-		expect(keys.length).toBe(0);
-	});
+  /* Generic tests */
+  it('should not have properties upon creation', () => {
+    const keys = node.keys();
+    expect(keys.length).toBe(0);
+  });
 
-	it('should return the uid when `toString` is called', () => {
-		const result = node.toString();
-		const { uid } = node.meta();
-		expect(result).toBe(uid);
-	});
+  it('should return the uid when `toString` is called', () => {
+    const result = node.toString();
+    const { uid } = node.meta();
+    expect(result).toBe(uid);
+  });
 
-	it('should return the node when `toJSON` is called', () => {
-		node.merge({ 'json worked': true });
-		const result = JSON.stringify(node);
+  it('should return the node when `toJSON` is called', () => {
+    node.merge({ 'json worked': true });
+    const result = JSON.stringify(node);
 
-		expect(result).toContain('json worked');
-	});
+    expect(result).toContain('json worked');
+  });
 
-	/* Not so generic tests */
-	describe('uid', () => {
+  /* Not so generic tests */
+  describe('uid', () => {
 
-		it('should exist on creation', () => {
-			const { uid } = node.meta();
-			expect(uid).toNotBe(undefined);
-		});
+    it('should exist on creation', () => {
+      const { uid } = node.meta();
+      expect(uid).toNotBe(undefined);
+    });
 
-		it('should be unique', () => {
-			const { uid: uid1 } = Node.create().meta();
-			const { uid: uid2 } = Node.create().meta();
+    it('should be unique', () => {
+      const { uid: uid1 } = Node.create().meta();
+      const { uid: uid2 } = Node.create().meta();
 
-			expect(uid1).toNotBe(uid2);
-		});
+      expect(uid1).toNotBe(uid2);
+    });
 
-		it('should use the configuration provided', () => {
-			const node = Node.create({ uid: 'custom' });
-			const { uid } = node.meta();
-			expect(uid).toBe('custom');
-		});
+    it('should use the configuration provided', () => {
+      const node = Node.create({ uid: 'custom' });
+      const { uid } = node.meta();
+      expect(uid).toBe('custom');
+    });
 
-	});
+  });
 
-	describe('field state lookup', () => {
+  describe('field state lookup', () => {
 
-		it('should return -Infinity when there is no property', () => {
-			const state = node.state('no such key');
-			expect(state).toBe(-Infinity);
-		});
+    it('should return -Infinity when there is no property', () => {
+      const state = node.state('no such key');
+      expect(state).toBe(-Infinity);
+    });
 
-	});
+  });
 
-	describe('field metadata lookup', () => {
+  describe('field metadata lookup', () => {
 
-		it('should return null if no values exist', () => {
-			const result = node.meta('no such key');
-			expect(result).toBe(null);
-		});
+    it('should return null if no values exist', () => {
+      const result = node.meta('no such key');
+      expect(result).toBe(null);
+    });
 
-		it('should return the metadata if the field exists', () => {
-			node.merge({ name: 'Steve' });
-			const result = node.meta('name');
-			expect(result).toBeAn(Object);
-		});
+    it('should return the metadata if the field exists', () => {
+      node.merge({ name: 'Steve' });
+      const result = node.meta('name');
+      expect(result).toBeAn(Object);
+    });
 
-	});
+  });
 
-	describe('key lookup', () => {
+  describe('key lookup', () => {
 
-		it('should exclude the object metadata key', () => {
-			const keys = node.keys();
-			expect(keys).toNotInclude('@object');
-		});
+    it('should exclude the object metadata key', () => {
+      const keys = node.keys();
+      expect(keys).toNotInclude('@object');
+    });
 
-		it('should list all the keys', () => {
-			node.merge({ name: 'Anthony' });
+    it('should list all the keys', () => {
+      node.merge({ name: 'Anthony' });
 
-			const keys = node.keys();
-			expect(keys).toInclude(['name']);
-		});
+      const keys = node.keys();
+      expect(keys).toInclude(['name']);
+    });
 
-	});
+  });
 
-	describe('property lookup', () => {
+  describe('property lookup', () => {
 
-		it('should return undefined if the key cannot be found', () => {
-			const result = node.read('no such key');
-			expect(result).toBe(undefined);
-		});
+    it('should return undefined if the key cannot be found', () => {
+      const result = node.read('no such key');
+      expect(result).toBe(undefined);
+    });
 
-		it('should return undefined if called on reserved fields', () => {
+    it('should return undefined if called on reserved fields', () => {
 
-			// Please, never do this in your code.
-			node.meta().value = 'failure!';
+     // Please, never do this in your code.
+      node.meta().value = 'failure!';
 
-			const result = node.read('@object');
-			expect(result).toBe(undefined);
-		});
+      const result = node.read('@object');
+      expect(result).toBe(undefined);
+    });
 
-	});
+  });
 
-	describe('value lookup', () => {
+  describe('value lookup', () => {
 
-		beforeEach(() => {
-			node.merge({
-				property: 'property 1',
-			});
-		});
+    beforeEach(() => {
+      node.merge({
+        property: 'property 1',
+      });
+    });
 
-		it('should exclude the object metadata', () => {
-			const values = node.values();
-			expect(values).toNotContain(node.meta());
-		});
+    it('should exclude the object metadata', () => {
+      const values = node.values();
+      expect(values).toNotContain(node.meta());
+    });
 
-		it('should contain all node values', () => {
-			const values = node.values();
-			expect(values).toContain('property 1');
-		});
+    it('should contain all node values', () => {
+      const values = node.values();
+      expect(values).toContain('property 1');
+    });
 
-	});
+  });
 
-	describe('entries list', () => {
+  describe('entries list', () => {
 
-		let entries;
+    let entries;
 
-		beforeEach(() => {
-			node.merge({
-				property1: 'value 1',
-				property2: 'value 2',
-			});
+    beforeEach(() => {
+      node.merge({
+        property1: 'value 1',
+        property2: 'value 2',
+      });
 
-			entries = node.entries();
-		});
+      entries = node.entries();
+    });
 
-		it('should return a list of arrays', () => {
-			entries.forEach((entry) => expect(entry).toBeAn(Array));
-		});
+    it('should return a list of arrays', () => {
+      entries.forEach((entry) => expect(entry).toBeAn(Array));
+    });
 
-		it('should ignore the metadata', () => {
-			entries.forEach((entry) => {
-				expect(entry).toNotContain('@object');
-			});
-		});
+    it('should ignore the metadata', () => {
+      entries.forEach((entry) => {
+        expect(entry).toNotContain('@object');
+      });
+    });
 
-		it('should contain the same keys as `.keys()`', () => {
-			const keys = node.keys();
-			const copy = entries.map((entry) => entry[0]);
+    it('should contain the same keys as `.keys()`', () => {
+      const keys = node.keys();
+      const copy = entries.map((entry) => entry[0]);
 
-			// Sorted to prevent sort inequalities.
-			expect(keys.sort()).toEqual(copy.sort());
-		});
+     // Sorted to prevent sort inequalities.
+      expect(keys.sort()).toEqual(copy.sort());
+    });
 
-		it('should contain the same values as `.values()`', () => {
-			const values = node.values();
-			const copy = entries.map((entry) => entry[1]);
-			expect(values.sort()).toEqual(copy.sort());
-		});
+    it('should contain the same values as `.values()`', () => {
+      const values = node.values();
+      const copy = entries.map((entry) => entry[1]);
+      expect(values.sort()).toEqual(copy.sort());
+    });
 
-	});
+  });
 
-	describe('merge', () => {
+  describe('merge', () => {
 
-		it('should return the `this` context', () => {
-			const incoming = Node.from({ stuff: true });
-			const result = node.merge(incoming);
-			expect(result).toBe(node);
-		});
+    it('should return the `this` context', () => {
+      const incoming = Node.from({ stuff: true });
+      const result = node.merge(incoming);
+      expect(result).toBe(node);
+    });
 
-		it('should namespace to avoid conflicts', () => {
-			node.merge({ read: 'not a function' });
-			expect(node.read).toBeA(Function);
-		});
+    it('should namespace to avoid conflicts', () => {
+      node.merge({ read: 'not a function' });
+      expect(node.read).toBeA(Function);
+    });
 
-		it('should convert POJOs into Nodes', () => {
-			node.merge({ data: 'success' });
-			expect(node.read('data')).toBe('success');
-		});
+    it('should convert POJOs into Nodes', () => {
+      node.merge({ data: 'success' });
+      expect(node.read('data')).toBe('success');
+    });
 
-		describe('within operating state bounds', () => {
+    describe('within operating state bounds', () => {
 
-			it('should add all new properties', () => {
-				const update = Node.from({ data: true });
-				node.merge(update);
+      it('should add all new properties', () => {
+        const update = Node.from({ data: true });
+        node.merge(update);
 
-				const keys = node.keys();
-				expect(keys).toContain('data');
-			});
+        const keys = node.keys();
+        expect(keys).toContain('data');
+      });
 
-			it('should update existing properties', () => {
-				const incoming = Node.from({ data: false });
-				node.merge(incoming);
-				expect(node.read('data')).toBe(false);
+      it('should update existing properties', () => {
+        const incoming = Node.from({ data: false });
+        node.merge(incoming);
+        expect(node.read('data')).toBe(false);
 
-				incoming.merge({ data: true });
-				node.merge(incoming);
+        incoming.merge({ data: true });
+        node.merge(incoming);
 
-				expect(node.read('data')).toBe(true);
-			});
+        expect(node.read('data')).toBe(true);
+      });
 
-			it('should emit `update` after updates', () => {
-				const spy = createSpy();
-				node.on('update', spy);
+      it('should emit `update` after updates', () => {
+        const spy = createSpy();
+        node.on('update', spy);
 
-				node.merge({ data: 'yep' });
+        node.merge({ data: 'yep' });
 
-				expect(spy).toHaveBeenCalledWith({
-					data: node.meta('data'),
-				});
-			});
+        expect(spy).toHaveBeenCalledWith({
+          data: node.meta('data'),
+        });
+      });
 
-			it('should not emit `update` without updates', () => {
-				const spy = createSpy();
-				node.on('update', spy);
+      it('should not emit `update` without updates', () => {
+        const spy = createSpy();
+        node.on('update', spy);
 
-				// No properties.
-				node.merge({});
+      // No properties.
+        node.merge({});
 
-				expect(spy).toNotHaveBeenCalled();
-			});
+        expect(spy).toNotHaveBeenCalled();
+      });
 
-		});
+    });
 
-		describe('in historical state', () => {
+    describe('in historical state', () => {
 
-			let incoming;
+      let incoming;
 
-			beforeEach(() => {
-				incoming = Node.create();
-			});
+      beforeEach(() => {
+        incoming = Node.create();
+      });
 
-			it('should not more recent properties', () => {
-				// Stale update.
-				incoming.merge({ hello: 'Mars' });
-				incoming.meta('hello').state = time() - 10;
+      it('should not more recent properties', () => {
+      // Stale update.
+        incoming.merge({ hello: 'Mars' });
+        incoming.meta('hello').state = time() - 10;
 
-				// Fresh state.
-				node.merge({ hello: 'World' });
+      // Fresh state.
+        node.merge({ hello: 'World' });
 
-				node.merge(incoming);
+        node.merge(incoming);
 
-				expect(node.read('hello')).toBe('World');
+        expect(node.read('hello')).toBe('World');
 
-			});
+      });
 
-			it('should add new properties', () => {
-				// Really old state, but it's new to `node`.
-				incoming.merge({ success: true });
-				incoming.meta('success').state = time() - 100000;
+      it('should add new properties', () => {
+      // Really old state, but it's new to `node`.
+        incoming.merge({ success: true });
+        incoming.meta('success').state = time() - 100000;
 
-				node.merge(incoming);
+        node.merge(incoming);
 
-				expect(node.read('success')).toBe(true);
-			});
+        expect(node.read('success')).toBe(true);
+      });
 
-			it('should emit `historical` if updates are outdated', () => {
-				incoming.merge({ data: 'old state' });
-				incoming.meta('data').state = time() - 10;
+      it('should emit `historical` if updates are outdated', () => {
+        incoming.merge({ data: 'old state' });
+        incoming.meta('data').state = time() - 10;
 
-				node.merge({ data: 'new state' });
+        node.merge({ data: 'new state' });
 
-				const spy = createSpy();
-				node.on('historical', spy);
+        const spy = createSpy();
+        node.on('historical', spy);
 
-				node.merge(incoming);
-				expect(spy).toHaveBeenCalledWith({
-					data: node.meta('data'),
-				});
-			});
+        node.merge(incoming);
+        expect(spy).toHaveBeenCalledWith({
+          data: node.meta('data'),
+        });
+      });
 
-			it('should not emit `historical` without stale updates', () => {
+      it('should not emit `historical` without stale updates', () => {
 
-				const spy = createSpy();
-				node.on('historical', spy);
+        const spy = createSpy();
+        node.on('historical', spy);
 
-				incoming.merge({ 'new property': 'yeah' });
-				incoming.meta('new property').state = time() - 10;
+        incoming.merge({ 'new property': 'yeah' });
+        incoming.meta('new property').state = time() - 10;
 
-				node.merge({ hello: 'Earth' });
+        node.merge({ hello: 'Earth' });
 
-				node.merge(incoming);
+        node.merge(incoming);
 
-				expect(spy).toNotHaveBeenCalled();
+        expect(spy).toNotHaveBeenCalled();
 
-			});
+      });
 
-		});
+    });
 
-		describe('from the future', function () {
+    describe('from the future', function () {
 
-			// Time can be sketchy.
-			this.retries(1);
+     // Time can be sketchy.
+      this.retries(1);
 
-			// This should be ample.
-			this.timeout(500);
+     // This should be ample.
+      this.timeout(500);
 
-			let incoming;
+      let incoming;
 
-			beforeEach(() => {
-				incoming = Node.create();
-			});
+      beforeEach(() => {
+        incoming = Node.create();
+      });
 
-			it('should not merge until that state is reached', (done) => {
-				incoming.merge({ future: true });
-				incoming.meta('future').state = time() + 5;
-				node.merge(incoming);
+      it('should not merge until that state is reached', (done) => {
+        incoming.merge({ future: true });
+        incoming.meta('future').state = time() + 5;
+        node.merge(incoming);
 
-				expect(node.read('future')).toNotExist();
+        expect(node.read('future')).toNotExist();
 
-				setTimeout(() => {
-					expect(node.read('future')).toBe(true);
-					done();
-				}, 10);
-			});
+        setTimeout(() => {
+          expect(node.read('future')).toBe(true);
+          done();
+        }, 10);
+      });
 
-			it('should retry the merge later, not overwrite', (done) => {
-				incoming.merge({ future: true });
-				incoming.meta('future').state = time() + 10;
-				node.merge(incoming);
+      it('should retry the merge later, not overwrite', (done) => {
+        incoming.merge({ future: true });
+        incoming.meta('future').state = time() + 10;
+        node.merge(incoming);
 
-				// If it's going through `merge`,
-				// the update event should fire.
-				node.on('update', (state) => {
-					expect(state.future).toExist();
-					done();
-				});
-			});
+      // If it's going through `merge`,
+      // the update event should fire.
+        node.on('update', (state) => {
+          expect(state.future).toExist();
+          done();
+        });
+      });
 
-			it('should emit `deferred` when deferred updates come in', () => {
-				const spy = createSpy();
-				incoming.merge({ future: true });
-				incoming.meta('future').state = time() + 10;
+      it('should emit `deferred` when deferred updates come in', () => {
+        const spy = createSpy();
+        incoming.merge({ future: true });
+        incoming.meta('future').state = time() + 10;
 
-				node.on('deferred', spy);
+        node.on('deferred', spy);
 
-				node.merge(incoming);
-				expect(spy).toHaveBeenCalledWith({
-					future: incoming.meta('future'),
-				});
-			});
+        node.merge(incoming);
+        expect(spy).toHaveBeenCalledWith({
+          future: incoming.meta('future'),
+        });
+      });
 
-			it('should not emit `deferred` without deferred updates', () => {
-				const spy = createSpy();
-				node.on('deferred', spy);
+      it('should not emit `deferred` without deferred updates', () => {
+        const spy = createSpy();
+        node.on('deferred', spy);
 
-				node.merge({ data: true });
-				expect(spy).toNotHaveBeenCalled();
-			});
+        node.merge({ data: true });
+        expect(spy).toNotHaveBeenCalled();
+      });
 
-		});
+    });
 
-	});
+  });
 
 });

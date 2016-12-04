@@ -16,20 +16,20 @@
  */
 export function conflict (field1, field2) {
 
-	/** Turn the values into comparable strings. */
-	const string = {
-		current: JSON.stringify(field1.value),
-		update: JSON.stringify(field2.value),
-	};
+  /** Turn the values into comparable strings. */
+  const string = {
+    current: JSON.stringify(field1.value),
+    update: JSON.stringify(field2.value),
+  };
 
-	/** Are the values equal? */
-	const equal = (string.current === string.update);
+  /** Are the values equal? */
+  const equal = (string.current === string.update);
 
-	/** Is our current value greater? */
-	const greater = (string.current > string.update);
+  /** Is our current value greater? */
+  const greater = (string.current > string.update);
 
-	/** Return the winning value. */
-	return (equal || greater) ? field1 : field2;
+  /** Return the winning value. */
+  return (equal || greater) ? field1 : field2;
 }
 
 /**
@@ -41,22 +41,22 @@ export function conflict (field1, field2) {
  * @returns {Object} - The value metadata of the resolved address.
  */
 export function state (timeline, clock) {
-	const changes = Object.keys(timeline).map(parseFloat);
+  const changes = Object.keys(timeline).map(parseFloat);
 
-	let state = 0, deferred = Infinity;
-	changes.forEach((update) => {
-		if (update <= clock && update > state) {
-			state = update;
-			return;
-		}
-		if (update > clock && update < deferred) {
-			deferred = update;
-			return;
-		}
-	});
+  let state = 0, deferred = Infinity;
+  changes.forEach((update) => {
+    if (update <= clock && update > state) {
+      state = update;
+      return;
+    }
+    if (update > clock && update < deferred) {
+      deferred = update;
+      return;
+    }
+  });
 
-	return {
-		update: timeline[state] || null,
-		deferred: timeline[deferred] || null,
-	};
+  return {
+    update: timeline[state] || null,
+    deferred: timeline[deferred] || null,
+  };
 }

@@ -2,27 +2,26 @@
 const eslint = exports;
 
 eslint.env = {
-	browser: true,
-	node: true,
-	es6: true,
+  browser: true,
+  node: true,
+  es6: true,
 };
 
 eslint.plugins = [
-	'babel',
+  'babel',
 ];
 
 eslint.extends = [
-	'eslint:recommended',
-	'llama',
+  'eslint:recommended',
+  'llama',
 ];
 
 eslint.parserOptions = {
-	sourceType: 'module',
+  sourceType: 'module',
 };
 
 eslint.parser = 'babel-eslint';
 
 eslint.rules = {
-	'indent': ['error', 'tab'],
-	'require-jsdoc': 'off',
+  'require-jsdoc': 'off',
 };

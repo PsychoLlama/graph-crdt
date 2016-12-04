@@ -1,18 +1,18 @@
 {
-	"source": {
-		"include": ["src/"],
-		"exclude": ["node_modules/"],
-		"includePattern": ".*\\.js$",
-		"excludePattern": "(node_modules|docs)$"
-	},
-	"templates": {
-		"cleverLinks": true
-	},
-	"opts": {
-		"template": "./node_modules/postman-jsdoc-theme",
-		"recurse": true,
-		"private": false,
-		"destination": "./docs/",
-		"readme": "./README.md"
-	}
+  "source": {
+    "include": ["src/"],
+    "exclude": ["node_modules/"],
+    "includePattern": ".*\\.js$",
+    "excludePattern": "(node_modules|docs)$"
+  },
+  "templates": {
+    "cleverLinks": true
+  },
+  "opts": {
+    "template": "./node_modules/postman-jsdoc-theme",
+    "recurse": true,
+    "private": false,
+    "destination": "./docs/",
+    "readme": "./README.md"
+  }
 }

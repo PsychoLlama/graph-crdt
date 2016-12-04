@@ -13,22 +13,22 @@ let last = 0;
  */
 function time () {
 
-	const timestamp = new Date().getTime();
+  const timestamp = new Date().getTime();
 
-	if (last >= timestamp) {
+  if (last >= timestamp) {
 
-		/**
-		 * If called twice within a millisecond, return
-		 * a value incremented by a small amount.
-		 */
-		last += 0.001;
-		return last;
-	}
+   /**
+    * If called twice within a millisecond, return
+    * a value incremented by a small amount.
+    */
+    last += 0.001;
+    return last;
+  }
 
-	/** Set the timestamp for the next call. */
-	last = timestamp;
+  /** Set the timestamp for the next call. */
+  last = timestamp;
 
-	return last;
+  return last;
 }
 
 export default time;
