@@ -8,6 +8,7 @@
     "mocha": "mocha --opts ./mocha.opts",
     "build": "babel src/ -d dist/ --ignore **/*spec.js",
     "test": "npm run mocha src/",
+    "lint": "eslint src/",
     "doc": "jsdoc --configure jsdoc.config.json"
   },
   "keywords": [
@@ -20,13 +21,18 @@
   ],
   "author": "Jesse Gibson <jesse@gundb.io> (http://techllama.com)",
   "devDependencies": {
-    "babel-cli": "^6.11.4",
-    "babel-plugin-transform-runtime": "^6.12.0",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-register": "^6.11.6",
+    "babel-cli": "^6.18.0",
+    "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babel-register": "^6.18.0",
+    "eslint": "^3.11.1",
+    "eslint-config-llama": "^3.0.0",
+    "eslint-plugin-babel": "^4.0.0",
     "expect": "^1.20.2",
     "jsdoc": "^3.4.0",
-    "mocha": "^3.0.2",
+    "mocha": "^3.2.0",
     "postman-jsdoc-theme": "0.0.2"
   },
   "dependencies": {
