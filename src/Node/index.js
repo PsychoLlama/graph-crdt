@@ -99,11 +99,11 @@ export default class Node extends Emitter {
 
     if (field === undefined) {
 
-     /** Returns the object metadata if no field is specified. */
+      /** Returns the object metadata if no field is specified. */
       return this[node]['@object'];
     }
 
-   /** Returns the field given, and null if metadata isn't found. */
+    /** Returns the field given, and null if metadata isn't found. */
     return this[node][field] || null;
   }
 
@@ -121,7 +121,7 @@ export default class Node extends Emitter {
       return undefined;
     }
 
-   /** Gets the field metadata. */
+    /** Gets the field metadata. */
     const subject = this.meta(field);
 
    /**
@@ -141,10 +141,10 @@ export default class Node extends Emitter {
    */
   state (field) {
 
-   /** Get the field metadata. */
+    /** Get the field metadata. */
     const subject = this.meta(field);
 
-   /** Return the state if it exists, or -Infinity when it doesn't. */
+    /** Return the state if it exists, or -Infinity when it doesn't. */
     return subject ? subject.state : -Infinity;
   }
 
@@ -157,16 +157,16 @@ export default class Node extends Emitter {
 
     const result = [];
 
-   /** Gets the raw node object. */
+    /** Gets the raw node object. */
     const object = this[node];
 
-   /** Gets a reference to the metadata symbol. */
+    /** Gets a reference to the metadata symbol. */
     const meta = '@object';
 
-   /** Iteratively add each key to the results. */
+    /** Iteratively add each key to the results. */
     for (const key in object) {
 
-     /** Filters out inherited properties and the metadata key. */
+      /** Filters out inherited properties and the metadata key. */
       if (key !== meta && object.hasOwnProperty(key)) {
         result.push(key);
       }
@@ -192,10 +192,10 @@ export default class Node extends Emitter {
   entries () {
     return this.keys().map((key) => {
 
-     /** The value at that key. */
+      /** The value at that key. */
       const value = this.read(key);
 
-     /** Map to a key-value pair. */
+      /** Map to a key-value pair. */
       return [key, value];
     });
   }

@@ -113,7 +113,7 @@ export default class Graph extends Emitter {
    */
   merge (graph) {
 
-   /** Ensure it's a graph. */
+    /** Ensure it's a graph. */
     if (!(graph instanceof Graph)) {
       graph = Graph.source(graph);
     }
@@ -141,19 +141,19 @@ export default class Graph extends Emitter {
    */
   alias (uid, node) {
 
-   /** Create a new aggregate node. */
+    /** Create a new aggregate node. */
     const aggregate = Node.create({ uid });
     const meta = aggregate.meta();
 
-   /** Add an aggregate flag in the metadata. */
+    /** Add an aggregate flag in the metadata. */
     meta.aggregate = true;
 
-   /** Add node as a field in the aggregate. */
+    /** Add node as a field in the aggregate. */
     aggregate.merge({
       [node.meta().uid]: true,
     });
 
-   /** Add both nodes to the graph. */
+    /** Add both nodes to the graph. */
     this.add(node);
     this.add(aggregate);
 
