@@ -34,21 +34,21 @@ export default class Graph extends Emitter {
    */
   static source (object) {
 
-   // Create a new graph
+    // Create a new graph
     const graph = Graph.create();
 
-   // For each node...
+    // For each node...
     Object.keys(object).forEach((key) => {
 
       const value = object[key];
 
-     // Make sure it's a node.
+      // Make sure it's a node.
       if (value instanceof Node) {
         graph.add(value);
       } else {
 
-      // If it isn't, turn it into one.
-      // Assume it's preformatted.
+        // If it isn't, turn it into one.
+        // Assume it's preformatted.
         const node = Node.source(value);
         graph.add(node);
       }
@@ -120,11 +120,11 @@ export default class Graph extends Emitter {
 
     const keys = graph.keys();
 
-   // Read each node from the update graph.
+    // Read each node from the update graph.
     keys.forEach((key) => {
       const node = graph.read(key);
 
-     // Add it to ours.
+      // Add it to ours.
       this.add(node);
     });
 

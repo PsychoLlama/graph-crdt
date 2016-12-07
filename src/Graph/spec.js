@@ -24,7 +24,7 @@ describe('Graph static method', () => {
 
       const graph = Graph.source({
 
-      // "copy" is a plain object.
+        // "copy" is a plain object.
         'placeholder': copy,
       });
 
@@ -143,13 +143,13 @@ describe('A graph', () => {
 
     it('should not emit `add` if the node was already added', () => {
 
-     // Add the node the first time...
+      // Add the node the first time...
       graph.add(node);
 
       const spy = createSpy();
       graph.on('add', spy);
 
-     // It's already there. Shouldn't fire.
+      // It's already there. Shouldn't fire.
       graph.add(node);
 
       expect(spy).toNotHaveBeenCalled();
@@ -159,10 +159,10 @@ describe('A graph', () => {
       graph.add(node);
       const similar = Node.create({ uid: node.toString() });
 
-     // Add a new property.
+      // Add a new property.
       similar.merge({ hello: 'world' });
 
-     // Should merge with `node`.
+      // Should merge with `node`.
       graph.add(similar);
 
       expect(node.read('hello')).toBe('world');
@@ -267,7 +267,7 @@ describe('A graph', () => {
     it('should merge with an aggregate if it exists', () => {
       graph.alias('users', node);
 
-     // Add another node.
+      // Add another node.
       graph.alias('users', Node.create());
 
       const result = graph.read('users');

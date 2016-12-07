@@ -18,7 +18,7 @@ describe('A union', () => {
 
     function setup () {
 
-     // Try it in both orders.
+      // Try it in both orders.
       result = conflict(current, update);
       inverse = conflict(update, current);
     }

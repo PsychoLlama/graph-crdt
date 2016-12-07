@@ -10,7 +10,7 @@ describe('The time function', function () {
   it('should return the current time', () => {
     const now = new Date().getTime();
 
-   // Approximate, avoids race conditions.
+    // Approximate, avoids race conditions.
     expect(time())
      .toBeLessThan(now + 3)
      .toBeGreaterThan(now - 3);

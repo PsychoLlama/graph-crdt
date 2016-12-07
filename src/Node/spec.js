@@ -8,7 +8,7 @@ describe('Node static method', () => {
 
   describe('"from"', function () {
 
-   // Using system time can cause race conditions.
+    // Using system time can cause race conditions.
     this.retries(1);
 
     it('should turn a POJO into a node', () => {
@@ -152,7 +152,7 @@ describe('A node', () => {
 
     it('should return undefined if called on reserved fields', () => {
 
-     // Please, never do this in your code.
+      // Please, never do this in your code.
       node.meta().value = 'failure!';
 
       const result = node.read('@object');
@@ -208,7 +208,7 @@ describe('A node', () => {
       const keys = node.keys();
       const copy = entries.map((entry) => entry[0]);
 
-     // Sorted to prevent sort inequalities.
+      // Sorted to prevent sort inequalities.
       expect(keys.sort()).toEqual(copy.sort());
     });
 
@@ -274,7 +274,7 @@ describe('A node', () => {
         const spy = createSpy();
         node.on('update', spy);
 
-      // No properties.
+        // No properties.
         node.merge({});
 
         expect(spy).toNotHaveBeenCalled();
@@ -291,11 +291,11 @@ describe('A node', () => {
       });
 
       it('should not more recent properties', () => {
-      // Stale update.
+        // Stale update.
         incoming.merge({ hello: 'Mars' });
         incoming.meta('hello').state = time() - 10;
 
-      // Fresh state.
+        // Fresh state.
         node.merge({ hello: 'World' });
 
         node.merge(incoming);
@@ -305,7 +305,7 @@ describe('A node', () => {
       });
 
       it('should add new properties', () => {
-      // Really old state, but it's new to `node`.
+        // Really old state, but it's new to `node`.
         incoming.merge({ success: true });
         incoming.meta('success').state = time() - 100000;
 
@@ -349,10 +349,10 @@ describe('A node', () => {
 
     describe('from the future', function () {
 
-     // Time can be sketchy.
+      // Time can be sketchy.
       this.retries(1);
 
-     // This should be ample.
+      // This should be ample.
       this.timeout(500);
 
       let incoming;
@@ -379,8 +379,8 @@ describe('A node', () => {
         incoming.meta('future').state = time() + 10;
         node.merge(incoming);
 
-      // If it's going through `merge`,
-      // the update event should fire.
+        // If it's going through `merge`,
+        // the update event should fire.
         node.on('update', (state) => {
           expect(state.future).toExist();
           done();
