@@ -118,15 +118,9 @@ export default class Graph extends Emitter {
       graph = Graph.source(graph);
     }
 
-    const keys = [...graph].map(([key]) => key);
-
-    // Read each node from the update graph.
-    keys.forEach((key) => {
-      const node = graph.read(key);
-
-      // Add it to ours.
+    for (const [, node] of graph) {
       this.add(node);
-    });
+    }
 
     return this;
 
