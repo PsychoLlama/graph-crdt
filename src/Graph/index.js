@@ -118,7 +118,7 @@ export default class Graph extends Emitter {
       graph = Graph.source(graph);
     }
 
-    const keys = graph.keys();
+    const keys = [...graph].map(([key]) => key);
 
     // Read each node from the update graph.
     keys.forEach((key) => {
@@ -176,46 +176,33 @@ export default class Graph extends Emitter {
       return null;
     }
 
-    return aggregate.keys()
+    const keys = [...aggregate].map(([key]) => key);
+
+    return keys
      .filter((key) => aggregate.read(key) === true)
      .map((key) => this.read(key))
      .reduce((node, update) => node.merge(update));
   }
 
   /**
-   * Get a list of keys in the graph.
-   *
-   * @returns {String[]} - A list of keys.
+   * Iterates over every node in the graph.
+   * @return {Array} - Every yielded value is a key/value pair.
    */
-  keys () {
-    return Object.keys(this[nodes]);
-  }
+  * [Symbol.iterator] () {
+    const object = this[nodes];
 
-  /**
-   * Get a list of all nodes in the graph.
-   *
-   * @returns {String[]} - A list of nodes.
-   */
-  values () {
-    return this.keys().map((key) => this.read(key));
-  }
-
-  /**
-   * Get a list of key-value pairs in the graph.
-   *
-   * @returns {Array} - A list of key-value pairs.
-   */
-  entries () {
-    return this.keys().map((key) => {
-      const value = this.read(key);
-      return [key, value];
-    });
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        const value = this.read(key);
+        yield [key, value];
+      }
+    }
   }
 
   /* Coercion interfaces */
 
   /**
-   * Used to serialize a graph (JSON.stringify will calls this method).
+   * Used to serialize a graph (JSON.stringify calls this method).
    *
    * @private
    * @returns {Object} - The hidden collection of nodes.

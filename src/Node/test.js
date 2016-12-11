@@ -63,7 +63,7 @@ describe('A node', () => {
 
   /* Generic tests */
   it('should not have properties upon creation', () => {
-    const keys = node.keys();
+    const keys = [...node].map(([key]) => key);
     expect(keys.length).toBe(0);
   });
 
@@ -127,18 +127,28 @@ describe('A node', () => {
 
   });
 
-  describe('key lookup', () => {
+  describe('iterator', () => {
 
-    it('should exclude the object metadata key', () => {
-      const keys = node.keys();
-      expect(keys).toNotInclude('@object');
+    it('should skip the node metadata field', () => {
+      node.merge({ name: 'John' });
+      const keys = [...node].map(([key]) => key);
+
+      // Should not contain '@object'.
+      expect(keys).toEqual(['name']);
     });
 
-    it('should list all the keys', () => {
-      node.merge({ name: 'Anthony' });
+    it('should include key/value pairs for every field', () => {
+      node.merge({
+        name: 'Stewart',
+        tier: 'premium',
+      });
 
-      const keys = node.keys();
-      expect(keys).toInclude(['name']);
+      const pairs = [...node];
+
+      expect(pairs).toEqual([
+        ['name', 'Stewart'],
+        ['tier', 'premium'],
+      ]);
     });
 
   });
@@ -157,65 +167,6 @@ describe('A node', () => {
 
       const result = node.read('@object');
       expect(result).toBe(undefined);
-    });
-
-  });
-
-  describe('value lookup', () => {
-
-    beforeEach(() => {
-      node.merge({
-        property: 'property 1',
-      });
-    });
-
-    it('should exclude the object metadata', () => {
-      const values = node.values();
-      expect(values).toNotContain(node.meta());
-    });
-
-    it('should contain all node values', () => {
-      const values = node.values();
-      expect(values).toContain('property 1');
-    });
-
-  });
-
-  describe('entries list', () => {
-
-    let entries;
-
-    beforeEach(() => {
-      node.merge({
-        property1: 'value 1',
-        property2: 'value 2',
-      });
-
-      entries = node.entries();
-    });
-
-    it('should return a list of arrays', () => {
-      entries.forEach((entry) => expect(entry).toBeAn(Array));
-    });
-
-    it('should ignore the metadata', () => {
-      entries.forEach((entry) => {
-        expect(entry).toNotContain('@object');
-      });
-    });
-
-    it('should contain the same keys as `.keys()`', () => {
-      const keys = node.keys();
-      const copy = entries.map((entry) => entry[0]);
-
-      // Sorted to prevent sort inequalities.
-      expect(keys.sort()).toEqual(copy.sort());
-    });
-
-    it('should contain the same values as `.values()`', () => {
-      const values = node.values();
-      const copy = entries.map((entry) => entry[1]);
-      expect(values.sort()).toEqual(copy.sort());
     });
 
   });
@@ -244,7 +195,7 @@ describe('A node', () => {
         const update = Node.from({ data: true });
         node.merge(update);
 
-        const keys = node.keys();
+        const keys = [...node].map(([key]) => key);
         expect(keys).toContain('data');
       });
 

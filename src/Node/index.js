@@ -149,58 +149,6 @@ export default class Node extends Emitter {
   }
 
   /**
-   * Return an array of all the keys belonging to the node.
-   *
-   * @returns {String[]} - A list of properties.
-   */
-  keys () {
-
-    const result = [];
-
-    /** Gets the raw node object. */
-    const object = this[node];
-
-    /** Gets a reference to the metadata symbol. */
-    const meta = '@object';
-
-    /** Iteratively add each key to the results. */
-    for (const key in object) {
-
-      /** Filters out inherited properties and the metadata key. */
-      if (key !== meta && object.hasOwnProperty(key)) {
-        result.push(key);
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * List all the values in a node.
-   *
-   * @returns {Mixed[]} - The list of values.
-   */
-  values () {
-    return this.keys().map((key) => this.read(key));
-  }
-
-  /**
-   * Return a list of keys and values, just like `Object.entries`.
-   *
-   * @returns {Array[]} - A list of key-value pairs.
-   */
-  entries () {
-    return this.keys().map((key) => {
-
-      /** The value at that key. */
-      const value = this.read(key);
-
-      /** Map to a key-value pair. */
-      return [key, value];
-    });
-  }
-
-  /**
    * Schedule updates that have been deferred.
    *
    * @private
@@ -244,7 +192,7 @@ export default class Node extends Emitter {
     let changed = false;
     let deferring = false;
 
-    incoming.keys().forEach((key) => {
+    for (const [key] of incoming) {
       const current = this.meta(key);
       const next = incoming.meta(key);
       const timeline = { [next.state]: next };
@@ -270,7 +218,7 @@ export default class Node extends Emitter {
         this[defer](key, deferred, clock);
         deferring = true;
       }
-    });
+    }
 
     if (overwritten) {
       this.emit('historical', history);
@@ -284,6 +232,26 @@ export default class Node extends Emitter {
 
     return this;
 
+  }
+
+  /**
+   * Iterates over the node keys & values, ignoring metadata.
+   * @return {Array} - Each value yielded is a [key, value] pair.
+   */
+  * [Symbol.iterator] () {
+    const object = this[node];
+    const meta = '@object';
+
+    /** Iterate over the source object. */
+    for (const key in object) {
+
+      /** Ignore prototype values and node metadata. */
+      if (object.hasOwnProperty(key) && key !== meta) {
+        const value = this.read(key);
+        yield [key, value];
+      }
+
+    }
   }
 
   /* Coercion interfaces */

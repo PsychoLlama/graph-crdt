@@ -28,7 +28,7 @@ describe('Graph static method', () => {
         'placeholder': copy,
       });
 
-      const [key] = graph.keys();
+      const [key] = [...graph].map(([key]) => key);
       expect(graph.read(key)).toBeA(Node);
     });
 
@@ -44,7 +44,7 @@ describe('A graph', () => {
   });
 
   it('should be initialized empty', () => {
-    const keys = graph.keys();
+    const keys = [...graph].map(([key]) => key);
 
     expect(keys.length).toBe(0);
   });
@@ -59,61 +59,19 @@ describe('A graph', () => {
     expect(string).toContain('intact');
   });
 
-  describe('key list', () => {
+  describe('iterator', () => {
 
-    it('should return all the ids in the graph', () => {
-      graph.add({ property: 'value' });
+    it('should list all the node indices', () => {
+      const first = Node.create({ uid: 'first' });
+      const second = Node.create({ uid: 'second' });
+      graph.add(first).add(second);
 
-      const keys = graph.keys();
-      const [key] = keys;
+      const entries = [...graph];
 
-      expect(keys.length).toBe(1);
-      expect(graph.read(key)).toBeA(Node);
-    });
-
-  });
-
-  describe('value list', () => {
-
-    it('should return every node in the graph', () => {
-      graph.add({ property: 'value' });
-      const values = graph.values();
-      const [node] = values;
-
-      expect(node).toBeA(Node);
-      expect(values.length).toBe(1);
-    });
-
-  });
-
-  describe('entries list', () => {
-
-    beforeEach(() => {
-      graph.add({ property: 'value' });
-    });
-
-    it('should return a list of key-value arrays', () => {
-      const entries = graph.entries();
-
-      expect(entries.length).toBe(1);
-
-      entries.forEach((entry) => {
-        expect(entry).toBeAn(Array);
-      });
-
-    });
-
-    it('should contain the same keys as `.keys()`', () => {
-      const entryKeys = graph.entries().map(([key]) => key);
-      const sortedKeys = graph.keys().sort();
-
-      expect(entryKeys.sort()).toEqual(sortedKeys);
-    });
-
-    it('should contain the same values as `.values()`', () => {
-      const sortedValues = graph.values().sort();
-      const entryValues = graph.entries().map(([, value]) => value);
-      expect(entryValues).toEqual(sortedValues);
+      expect(entries).toEqual([
+        ['first', first],
+        ['second', second],
+      ]);
     });
 
   });
@@ -129,7 +87,7 @@ describe('A graph', () => {
     it('should add the node given', () => {
       graph.add(node);
       const { uid } = node.meta();
-      const keys = graph.keys();
+      const keys = [...graph].map(([key]) => key);
       expect(keys).toContain(uid);
     });
 
@@ -171,7 +129,7 @@ describe('A graph', () => {
     it('should convert objects to nodes', () => {
       graph.add({ hello: 'graph' });
 
-      const [key] = graph.keys();
+      const [key] = [...graph].map(([key]) => key);
       expect(graph.read(key)).toBeA(Node);
     });
 
@@ -217,7 +175,7 @@ describe('A graph', () => {
     it('should add all the items in the subgraph', () => {
       graph.merge(subgraph);
 
-      const keys = graph.keys();
+      const keys = [...graph].map(([key]) => key);
       expect(keys).toContain(node1.toString());
       expect(keys).toContain(node2.toString());
     });
@@ -271,7 +229,8 @@ describe('A graph', () => {
       graph.alias('users', Node.create());
 
       const result = graph.read('users');
-      expect(result.keys().length).toBe(2);
+      const keys = [...result].map(([key]) => key);
+      expect(keys.length).toBe(2);
     });
 
     it('should add the value to the graph', () => {
@@ -303,7 +262,7 @@ describe('A graph', () => {
 
     it('should merge nodes in an aggregate', () => {
       const result = graph.aggregate('nodes');
-      const keys = result.keys();
+      const keys = [...result].map(([key]) => key);
       expect(keys).toContain('prop1');
       expect(keys).toContain('prop2');
     });
@@ -329,7 +288,8 @@ describe('A graph', () => {
       });
 
       const result = graph.aggregate('nodes');
-      expect(result.keys()).toEqual(['prop2']);
+      const keys = [...result].map(([key]) => key);
+      expect(keys).toEqual(['prop2']);
     });
 
   });
