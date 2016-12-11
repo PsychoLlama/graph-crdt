@@ -1,4 +1,3 @@
 --recursive
---reporter dot
 --check-leaks
 --compilers js:babel-register

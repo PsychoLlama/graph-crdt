@@ -5,9 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "mocha": "mocha --opts ./mocha.opts",
     "build": "babel src/ -d dist/ --ignore **/*spec.js",
-    "test": "npm run mocha src/",
+    "test": "mocha src/ --opts ./mocha.opts",
     "lint": "eslint src/",
     "doc": "jsdoc --configure jsdoc.config.json"
   },
