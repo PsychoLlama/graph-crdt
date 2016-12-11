@@ -6,7 +6,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "babel src/ -d dist/ --ignore **/*spec.js",
-    "test": "mocha src/ --opts ./mocha.opts",
+    "test": "mocha 'src/**/*test.js' --opts ./mocha.opts",
     "lint": "eslint src/",
     "doc": "jsdoc --configure jsdoc.config.json"
   },
