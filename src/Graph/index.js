@@ -123,62 +123,6 @@ export default class Graph extends Emitter {
     }
 
     return this;
-
-  }
-
-  /**
-   * Adds a node to an aggregate collection.
-   *
-   * @param  {String} uid - The alias name.
-   * @param  {Node} node - The node to point to.
-   * @returns {Graph} - The this context.
-   */
-  alias (uid, node) {
-
-    /** Create a new aggregate node. */
-    const aggregate = Node.create({ uid });
-    const meta = aggregate.meta();
-
-    /** Add an aggregate flag in the metadata. */
-    meta.aggregate = true;
-
-    /** Add node as a field in the aggregate. */
-    aggregate.merge({
-      [node.meta().uid]: true,
-    });
-
-    /** Add both nodes to the graph. */
-    this.add(node);
-    this.add(aggregate);
-
-    return this;
-  }
-
-  /**
-   * Find all nodes within an aggregate and merge
-   * them together, returning the result.
-   *
-   * @param  {String} uid - The name of the aggregate node.
-   * @returns {Node} - A merged node instance. Note: the first
-   * node will become the target node, and all subsequent lookups
-   * will merge into it.
-   */
-  aggregate (uid) {
-    const aggregate = this.read(uid);
-
-    if (!aggregate) {
-      return null;
-    }
-
-    const keys = [...aggregate].map(([key]) => key);
-
-    return keys
-     .filter((key) => aggregate.read(key) === true)
-     .map((key) => this.read(key))
-     .reduce((node, update) => {
-       node.merge(update);
-       return node;
-     });
   }
 
   /**
