@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 /**
  * @module graph-crdt.Node
  */
@@ -5,7 +6,7 @@
 import Emitter from 'eventemitter3';
 import time from '../time';
 import { v4 as uuid } from 'uuid';
-import { state } from '../union';
+import { conflict } from '../union';
 
 const node = Symbol('source object');
 const defer = Symbol('defer method');
@@ -171,12 +172,51 @@ export default class Node extends Emitter {
   }
 
   /**
-   * merge - description
+   * @param  {String} field - The field name to compare.
+   * @param  {Node} node - A node instance to compare against.
+   * @param  {Number} clock - The current machine state.
+   * @return {String} - The relative position of the compared value.
+   */
+  compare (field, node, clock) {
+    const current = this.state(field);
+    const update = node.state(field);
+
+    /** Suspicious update from the future. */
+    if (update > clock) {
+      return 'deferred';
+    }
+
+    /** Newer than our current data. */
+    if (update > current) {
+      return 'update';
+    }
+
+    /** Older than the data we have. */
+    if (update < current) {
+      return 'history';
+    }
+
+    /** Handle the conflict. */
+    const field1 = this.meta(field);
+    const field2 = node.meta(field);
+    const winner = conflict(field1, field2);
+
+    /** Our current state is the winner. */
+    if (winner === field1) {
+      return 'history';
+    }
+
+    /** Agree on the newer state. */
+    return 'update';
+  }
+
+  /**
+   * Merges an update into the current node.
    *
    * @param  {Node} incoming - The node to merge from.
    * If a plain object is passed, it will be upgraded to a node
    * using `Node.from`.
-   * @returns {Node} - The `this` context.
+   * @returns {Object} - A collection of changes caused by the merge.
    */
   merge (incoming) {
 
@@ -185,53 +225,48 @@ export default class Node extends Emitter {
     }
 
     const clock = time();
-    const history = {};
-    const updates = {};
-    const future = {};
-    let overwritten = false;
-    let changed = false;
-    let deferring = false;
 
-    for (const [key] of incoming) {
-      const current = this.meta(key);
-      const next = incoming.meta(key);
-      const timeline = { [next.state]: next };
+    /** Track all mutations. */
+    const changes = {
+      history: new Node(),
+      update: new Node(),
+      deferred: new Node(),
+    };
 
-      if (current) {
-        timeline[current.state] = current;
+    for (const [field] of incoming) {
+      const type = this.compare(field, incoming, clock);
+      const meta = incoming.meta(field);
+
+      /** Track the change. */
+      changes[type][node][field] = meta;
+
+      /** Immediately apply updates. */
+      if (type === 'update') {
+        this[node][field] = meta;
       }
 
-      const { update, deferred } = state(timeline, clock);
-
-      if (update && update !== current) {
-        updates[key] = this[node][key] = update;
-        changed = true;
-      }
-
-      if (current) {
-        history[key] = current;
-        overwritten = true;
-      }
-
-      if (deferred) {
-        future[key] = deferred;
-        this[defer](key, deferred, clock);
-        deferring = true;
+      /** Schedule deferred updates. */
+      if (type === 'deferred') {
+        this[defer](field, meta, clock);
       }
     }
+
+    /** Only emit when there's a change. */
+    const changed = [...changes.update].length > 0;
+    const overwritten = [...changes.history].length > 0;
+    const deferred = [...changes.deferred].length > 0;
 
     if (overwritten) {
-      this.emit('historical', history);
+      this.emit('historical', changes.history);
     }
     if (changed) {
-      this.emit('update', updates);
+      this.emit('update', changes.update);
     }
-    if (deferring) {
-      this.emit('deferred', future);
+    if (deferred) {
+      this.emit('deferred', changes.deferred);
     }
 
     return this;
-
   }
 
   /**

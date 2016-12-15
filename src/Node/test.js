@@ -1,8 +1,7 @@
 import { describe, it, beforeEach } from 'mocha';
+import expect, { createSpy } from 'expect';
 import Node from './index';
 import time from '../time';
-import expect from 'expect';
-const { createSpy } = expect;
 
 describe('Node static method', () => {
 
@@ -171,7 +170,72 @@ describe('A node', () => {
 
   });
 
+  describe('state comparison', () => {
+
+    let node, update;
+    beforeEach(() => {
+      node = Node.from({ old: true });
+      update = Node.from({ old: false });
+    });
+
+    it('should mark newer values as updates', () => {
+      const state = node.compare('old', update, time());
+      expect(state).toBe('update');
+    });
+
+    it('should mark older values as history', () => {
+      const state = update.compare('old', node, time());
+      expect(state).toBe('history');
+    });
+
+    it('should mark future values as deferred', () => {
+      const clock = time();
+
+      // Future state.
+      update.meta('old').state = clock + 1000;
+
+      const state = node.compare('old', update, clock);
+
+      expect(state).toBe('deferred');
+    });
+
+    it('should mark winning conflicts as updates', () => {
+
+      // Same state.
+      node.merge({ old: 1 });
+      update.merge({ old: 2 });
+      node.meta('old').state = update.meta('old').state;
+
+      const state = node.compare('old', update, time());
+      expect(state).toBe('update');
+    });
+
+    it('should mark losing conflicts as a conflict', () => {
+      node.merge({ old: 2 });
+      update.merge({ old: 1 });
+      node.meta('old').state = update.meta('old').state;
+
+      const state = node.compare('old', update, time());
+      expect(state).toBe('history');
+    });
+
+    it('should mark new fields as updates', () => {
+      update.merge({ feature: 'new property!' });
+      const state = node.compare('feature', update, time());
+      expect(state).toBe('update');
+    });
+
+  });
+
   describe('merge', () => {
+
+    const toObject = (node) => [...node]
+    .reduce((obj, [key, val]) => {
+      const copy = Object.assign({}, obj, {
+        [key]: val,
+      });
+      return copy;
+    }, {});
 
     it('should return the `this` context', () => {
       const incoming = Node.from({ stuff: true });
@@ -216,8 +280,12 @@ describe('A node', () => {
 
         node.merge({ data: 'yep' });
 
-        expect(spy).toHaveBeenCalledWith({
-          data: node.meta('data'),
+        const [value] = spy.calls[0].arguments;
+        expect(value).toBeA(Node);
+
+        const object = toObject(value);
+        expect(object).toEqual({
+          data: 'yep',
         });
       });
 
@@ -231,6 +299,18 @@ describe('A node', () => {
         expect(spy).toNotHaveBeenCalled();
       });
 
+      it('should not emit `update` for the same update', () => {
+        const spy = createSpy();
+        node.on('update', spy);
+
+        const update = Node.from({ update: true });
+
+        node.merge(update);
+        node.merge(update);
+
+        expect(spy.calls.length).toBe(1);
+      });
+
     });
 
     describe('in historical state', () => {
@@ -241,7 +321,7 @@ describe('A node', () => {
         incoming = Node.create();
       });
 
-      it('should not more recent properties', () => {
+      it('should not overwrite more recent properties', () => {
         // Stale update.
         incoming.merge({ hello: 'Mars' });
         incoming.meta('hello').state = time() - 10;
@@ -275,8 +355,13 @@ describe('A node', () => {
         node.on('historical', spy);
 
         node.merge(incoming);
-        expect(spy).toHaveBeenCalledWith({
-          data: node.meta('data'),
+        const [history] = spy.calls[0].arguments;
+
+        expect(history).toBeA(Node);
+
+        const object = toObject(history);
+        expect(object).toEqual({
+          data: 'old state',
         });
       });
 
@@ -332,7 +417,8 @@ describe('A node', () => {
 
         // If it's going through `merge`,
         // the update event should fire.
-        node.on('update', (state) => {
+        node.on('update', (update) => {
+          const state = toObject(update);
           expect(state.future).toExist();
           done();
         });
@@ -346,8 +432,13 @@ describe('A node', () => {
         node.on('deferred', spy);
 
         node.merge(incoming);
-        expect(spy).toHaveBeenCalledWith({
-          future: incoming.meta('future'),
+
+        const [deferred] = spy.calls[0].arguments;
+        expect(deferred).toBeA(Node);
+
+        const object = toObject(deferred);
+        expect(object).toEqual({
+          future: true,
         });
       });
 
