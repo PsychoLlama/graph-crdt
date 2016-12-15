@@ -19,7 +19,8 @@ describe('Graph static method', () => {
     });
 
     it('should source nested POJOs into nodes', () => {
-      const node = Node.create().merge({ data: true });
+      const node = Node.create();
+      node.merge({ data: true });
       const copy = JSON.parse(JSON.stringify(node));
 
       const graph = Graph.source({
@@ -248,10 +249,13 @@ describe('A graph', () => {
 
   describe('aggregate', () => {
 
-    const node1 = Node.create().merge({
+    const node1 = Node.create();
+    node1.merge({
       prop1: 'node1',
     });
-    const node2 = Node.create().merge({
+
+    const node2 = Node.create();
+    node2.merge({
       prop2: 'node2',
     });
 

@@ -175,7 +175,10 @@ export default class Graph extends Emitter {
     return keys
      .filter((key) => aggregate.read(key) === true)
      .map((key) => this.read(key))
-     .reduce((node, update) => node.merge(update));
+     .reduce((node, update) => {
+       node.merge(update);
+       return node;
+     });
   }
 
   /**

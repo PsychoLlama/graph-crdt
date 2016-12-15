@@ -63,7 +63,8 @@ export default class Node extends Emitter {
    * @returns {Node} - A new node instance.
    *
    * @example
-   * const original = Node.create().merge({ data: 'intact' })
+   * const original = Node.create()
+   * original.merge({ data: 'intact' })
    * const serialized = JSON.stringify(original)
    * const parsed = JSON.parse(serialized)
    *
@@ -266,7 +267,7 @@ export default class Node extends Emitter {
       this.emit('deferred', changes.deferred);
     }
 
-    return this;
+    return changes;
   }
 
   /**

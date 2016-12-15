@@ -41,7 +41,8 @@ describe('Node static method', () => {
   describe('"source"', () => {
 
     it('should create a node that draws from an object', () => {
-      const node = Node.create().merge({ data: 'intact' });
+      const node = Node.create();
+      node.merge({ data: 'intact' });
       const string = JSON.stringify(node);
       const object = JSON.parse(string);
       const copy = Node.source(object);
@@ -237,12 +238,6 @@ describe('A node', () => {
       return copy;
     }, {});
 
-    it('should return the `this` context', () => {
-      const incoming = Node.from({ stuff: true });
-      const result = node.merge(incoming);
-      expect(result).toBe(node);
-    });
-
     it('should namespace to avoid conflicts', () => {
       node.merge({ read: 'not a function' });
       expect(node.read).toBeA(Function);
@@ -284,6 +279,16 @@ describe('A node', () => {
         expect(value).toBeA(Node);
 
         const object = toObject(value);
+        expect(object).toEqual({
+          data: 'yep',
+        });
+      });
+
+      it('should return the updates', () => {
+        const { update } = node.merge({ data: 'yep' });
+        expect(update).toBeA(Node);
+
+        const object = toObject(update);
         expect(object).toEqual({
           data: 'yep',
         });
@@ -343,6 +348,21 @@ describe('A node', () => {
         node.merge(incoming);
 
         expect(node.read('success')).toBe(true);
+      });
+
+      it('should return the history', () => {
+        incoming.merge({ old: true });
+        incoming.meta('old').state = time() - 100;
+        node.merge({ old: false });
+
+        const { history } = node.merge(incoming);
+
+        expect(history).toBeA(Node);
+        const object = toObject(history);
+
+        expect(object).toEqual({
+          old: true,
+        });
       });
 
       it('should emit `historical` if updates are outdated', () => {
@@ -421,6 +441,19 @@ describe('A node', () => {
           const state = toObject(update);
           expect(state.future).toExist();
           done();
+        });
+      });
+
+      it('should return the deferred items', () => {
+        incoming.merge({ future: true });
+        incoming.meta('future').state = time() + 100;
+
+        const { deferred } = node.merge(incoming);
+
+        expect(deferred).toBeA(Node);
+        const object = toObject(deferred);
+        expect(object).toEqual({
+          future: true,
         });
       });
 
