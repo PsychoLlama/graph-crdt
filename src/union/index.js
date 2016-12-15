@@ -31,32 +31,3 @@ export function conflict (field1, field2) {
   /** Return the winning value. */
   return (equal || greater) ? field1 : field2;
 }
-
-/**
- * Render object state given a current time and mutation timeline.
- *
- * @param  {Object} timeline - An object representing historical
- * transformations on a field.
- * @param  {Number} clock - The current computer timestamp.
- * @returns {Object} - The value metadata of the resolved address.
- */
-export function state (timeline, clock) {
-  const changes = Object.keys(timeline).map(parseFloat);
-
-  let state = 0, deferred = Infinity;
-  changes.forEach((update) => {
-    if (update <= clock && update > state) {
-      state = update;
-      return;
-    }
-    if (update > clock && update < deferred) {
-      deferred = update;
-      return;
-    }
-  });
-
-  return {
-    update: timeline[state] || null,
-    deferred: timeline[deferred] || null,
-  };
-}

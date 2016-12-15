@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc*/
 import { describe, it, beforeEach } from 'mocha';
 import expect from 'expect';
-import { conflict, state } from './index';
+import { conflict } from './index';
 const { createSpy } = expect;
 
 describe('A union', () => {
@@ -87,48 +87,6 @@ describe('A union', () => {
       setup();
       expect(result).toBe(current);
       expect(inverse).toBe(current);
-    });
-
-  });
-
-  describe('state comparison', () => {
-
-    const current = {
-      value: 'current',
-      state: 10,
-    };
-    const update = {
-      value: 'update',
-      state: 15,
-    };
-    const timeline = {
-      [current.state]: current,
-      [update.state]: update,
-    };
-
-    it('should mark `deferred` as `null` without future updates', () => {
-      const result = state(timeline, 20);
-      expect(result.deferred).toBe(null);
-    });
-
-    it('should list the next deferred update', () => {
-      const result = state(timeline, 10);
-      expect(result.deferred).toBe(update);
-    });
-
-    it('should list `null` updates when none are in scope', () => {
-      const result = state(timeline, 5);
-      expect(result.update).toBe(null);
-    });
-
-    it('should use the closest timeline update as deferred', () => {
-      const result = state(timeline, 5);
-      expect(result.deferred).toBe(current);
-    });
-
-    it('should return the youngest of updates', () => {
-      const result = state(timeline, 50);
-      expect(result.update).toBe(update);
     });
 
   });
