@@ -34,10 +34,9 @@ This library opts for the latter, implementing a delta state graph CRDT. However
 
 ## Features
 - Commutative, idempotent, conflict-resolved `Node` unions.
-- Delta emission on `Node` unions.
+- Delta emission on `Node` and `Graph` unions.
 - Time travel (track and selectively apply deltas).
 
 ## Roadmap
-1. Delta emission on `Graph` unions.
-2. Node field tombstones.
-3. Immutable metadata API.
+1. Node field tombstones.
+2. Immutable metadata API.

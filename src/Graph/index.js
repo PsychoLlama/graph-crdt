@@ -92,15 +92,18 @@ export default class Graph extends Emitter {
 
     const existing = this[nodes][uid];
     if (existing) {
-      existing.merge(node);
-      return this;
+      return existing.merge(node);
     }
 
     this[nodes][uid] = node;
 
     this.emit('add', node);
 
-    return this;
+    return {
+      update: node,
+      history: new Node({ uid }),
+      deferred: new Node({ uid }),
+    };
   }
 
   /**
@@ -118,11 +121,24 @@ export default class Graph extends Emitter {
       graph = Graph.source(graph);
     }
 
+    const changes = {
+      update: new Graph(),
+      history: new Graph(),
+      deferred: new Graph(),
+    };
+
     for (const [, node] of graph) {
-      this.add(node);
+      const delta = this.add(node);
+      changes.update.add(delta.update);
+      changes.history.add(delta.history);
+      changes.deferred.add(delta.deferred);
     }
 
-    return this;
+    this.emit('update', changes.update);
+    this.emit('history', changes.history);
+    this.emit('deferred', changes.deferred);
+
+    return changes;
   }
 
   /**

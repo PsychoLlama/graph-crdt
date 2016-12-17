@@ -2,6 +2,7 @@ import { describe, it, beforeEach } from 'mocha';
 import Graph from '../Graph';
 import Node from '../Node';
 import expect from 'expect';
+import time from '../time';
 const { createSpy } = expect;
 
 describe('Graph static method', () => {
@@ -38,10 +39,17 @@ describe('Graph static method', () => {
 });
 
 describe('A graph', () => {
-  let graph = 'not yet defined.';
+
+  const toObject = (node) => [...node]
+  .reduce((obj, [key, value]) => {
+    obj[key] = value;
+    return obj;
+  }, {});
+
+  let graph;
 
   beforeEach(() => {
-    graph = Graph.create();
+    graph = new Graph();
   });
 
   it('should be initialized empty', () => {
@@ -65,7 +73,8 @@ describe('A graph', () => {
     it('should list all the node indices', () => {
       const first = Node.create({ uid: 'first' });
       const second = Node.create({ uid: 'second' });
-      graph.add(first).add(second);
+      graph.add(first);
+      graph.add(second);
 
       const entries = [...graph];
 
@@ -134,20 +143,52 @@ describe('A graph', () => {
       expect(graph.read(key)).toBeA(Node);
     });
 
-    it('should return the `this` context', () => {
-      const result = graph.add(node);
+    it('should return a delta object', () => {
+      const { update, history, deferred } = graph.add(node);
 
-      expect(result).toBe(graph);
+      expect(update).toBe(node);
+      expect(history).toBeA(Node);
+      expect(deferred).toBeA(Node);
+
+      const object = {
+        update: toObject(update),
+        node: toObject(node),
+      };
+      expect(object.update).toEqual(object.node);
+    });
+
+    it('should return the node merge deltas', () => {
+      node.merge({ old: true });
+      const update = new Node({
+        uid: node.toString(),
+      });
+
+      graph.add(node);
+
+      const result = graph.add(update);
+
+      expect(result).toBeAn(Object);
+      expect(result.update).toBeA(Node);
+      expect(result.history).toBeA(Node);
+      expect(result.deferred).toBeA(Node);
+    });
+
+    it('should preserve the Node uids in delta nodes', () => {
+      const { update, history, deferred } = graph.add(node);
+      const { uid } = node.meta();
+      expect(update.meta()).toContain({ uid });
+      expect(history.meta()).toContain({ uid });
+      expect(deferred.meta()).toContain({ uid });
     });
 
   });
 
-  describe('"raw" call', () => {
+  describe('"read" call', () => {
 
     let node;
 
     beforeEach(() => {
-      node = Node.create();
+      node = Node.create({ uid: 'dave' });
       graph.add(node);
     });
 
@@ -155,6 +196,11 @@ describe('A graph', () => {
       const result = graph.read(node.toString());
 
       expect(result).toBe(node);
+    });
+
+    it('should return null for non-existent nodes', () => {
+      const result = graph.read('potato');
+      expect(result).toBe(null);
     });
 
   });
@@ -173,6 +219,16 @@ describe('A graph', () => {
       });
     });
 
+    it('should ensure the subgraph is a Graph instance', () => {
+      const id = node1.toString();
+
+      graph.merge({
+        [id]: node1,
+      });
+
+      expect(graph.read(id)).toBe(node1);
+    });
+
     it('should add all the items in the subgraph', () => {
       graph.merge(subgraph);
 
@@ -183,19 +239,98 @@ describe('A graph', () => {
 
     it('should assume sub-objects are already formatted', () => {
       node1.merge({ data: 'preserved' });
-      subgraph = {
+
+      graph.merge({
         [node1]: node1.toJSON(),
-      };
-      graph.merge(subgraph);
+      });
 
       const result = graph.read(node1.toString());
       expect(result.read('data')).toBe('preserved');
     });
 
-    it('should return the `this` context', () => {
-      const result = graph.merge(subgraph);
+    it('should return the update delta', () => {
+      const { update } = graph.merge({
+        [node2]: node2,
+      });
 
-      expect(result).toBe(graph);
+      const object = toObject(update);
+      expect(object).toEqual({
+        [node2]: node2,
+      });
+    });
+
+    it('should emit an `update` delta graph on change', () => {
+      const spy = createSpy();
+      graph.on('update', spy);
+
+      const { update } = graph.merge({
+        [node1]: node1,
+      });
+
+      expect(spy).toHaveBeenCalledWith(update);
+    });
+
+    it('should return the deferred delta', () => {
+      const { uid } = node2.meta();
+
+      graph.merge({ [uid]: node2 });
+
+      const update = new Node({ uid });
+      update.merge({ change: true });
+      update.meta('change').state = time() + 100;
+
+      const { deferred } = graph.merge({ [uid]: update });
+
+      const node = deferred.read(uid);
+      expect(node).toBeA(Node);
+
+      expect(toObject(node)).toEqual({
+        change: true,
+      });
+    });
+
+    it('should emit a `deferred` graph on update', () => {
+      const spy = createSpy();
+      const update = new Node();
+      update.merge({ future: true });
+      update.meta().state = time() + 100;
+
+      graph.on('deferred', spy);
+      const { deferred } = graph.merge({
+        [update]: update,
+      });
+
+      expect(spy).toHaveBeenCalledWith(deferred);
+    });
+
+    it('should return the history delta', () => {
+
+      const data = new Node({ uid: 'existing' });
+      const update = new Node({ uid: 'existing' });
+      data.merge({ old: true });
+      update.merge({ old: false });
+
+      graph.merge({ [data]: data });
+      const { history } = graph.merge({ [update]: update });
+
+      const node = history.read('existing');
+      expect(node).toBeA(Node);
+      expect(toObject(node)).toEqual({
+        old: true,
+      });
+
+    });
+
+    it('should emit a `history` graph delta', () => {
+      const spy = createSpy();
+      graph.on('history', spy);
+
+      const node = new Node({ uid: 'node' });
+      const update = new Node({ uid: 'node' });
+      graph.merge({ [node]: node });
+
+      const { history } = graph.merge({ [update]: update });
+      expect(spy).toHaveBeenCalledWith(history);
     });
 
   });

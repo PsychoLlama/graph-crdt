@@ -248,6 +248,15 @@ describe('A node', () => {
       expect(node.read('data')).toBe('success');
     });
 
+    it('should use the same node ID for new change nodes', () => {
+      const { update, history, deferred } = node.merge({});
+      const { uid } = node.meta();
+
+      expect(update.meta()).toContain({ uid });
+      expect(history.meta()).toContain({ uid });
+      expect(deferred.meta()).toContain({ uid });
+    });
+
     describe('within operating state bounds', () => {
 
       it('should add all new properties', () => {
@@ -360,6 +369,16 @@ describe('A node', () => {
         expect(history).toBeA(Node);
         const object = toObject(history);
 
+        expect(object).toEqual({
+          old: true,
+        });
+      });
+
+      it('should include overwritten values in history', () => {
+        node.merge({ old: true });
+        const { history } = node.merge({ old: false });
+
+        const object = toObject(history);
         expect(object).toEqual({
           old: true,
         });

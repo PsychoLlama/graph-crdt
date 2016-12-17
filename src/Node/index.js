@@ -1,4 +1,3 @@
-/* eslint-disable default-case */
 /**
  * @module graph-crdt.Node
  */
@@ -226,12 +225,13 @@ export default class Node extends Emitter {
     }
 
     const clock = time();
+    const { uid } = this.meta();
 
     /** Track all mutations. */
     const changes = {
-      history: new Node(),
-      update: new Node(),
-      deferred: new Node(),
+      history: new Node({ uid }),
+      update: new Node({ uid }),
+      deferred: new Node({ uid }),
     };
 
     for (const [field] of incoming) {
@@ -243,6 +243,13 @@ export default class Node extends Emitter {
 
       /** Immediately apply updates. */
       if (type === 'update') {
+
+        /** Track overwritten values. */
+        const existing = this.meta(field);
+        if (existing) {
+          changes.history[node][field] = existing;
+        }
+
         this[node][field] = meta;
       }
 
