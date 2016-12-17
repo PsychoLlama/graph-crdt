@@ -1,10 +1,20 @@
 ---
 language: node_js
+
 node_js:
-  - 4
-  - 5
-  - 6
+- 4
+- 5
+- 6
 
 script:
-  - npm run test
-  - npm run lint
+- npm run test
+- npm run lint
+
+deploy:
+  provider: npm
+  email: Jesse_Gibson@me.com
+  api_key:
+    secure: D2i15mHlb2VWiRaCm/U0mEkhaoqtaKo7dMKglOkmbG1Cc1S7+JSfxQFyF2tNSQsgJNqIO3ik/l/09lm3nz1mV197/VMKyYKASsdlIg4elX3WaiyvMtQk82OUfNkCYrBskDaX3oqspByhiGfBXIrJqLQ/I2L1YJ/7rLVdx3t+/E2IYYZ6N/l4iWr/7Iq33Y+jy1mg4rm4R+UOS06QsRfMde4AxSGXjNGs9w6pm8C4cNgZx5rhHyJV6FJextofSCxp0idIOUtE8FeDDqpVccTUaD/phe128zWXnoN6pk7efxVgDlxhR94HCPXLfQBJyL+J3P5KjNNzz94IwTaVnuomwfnsxg7Wnrc2ZiVqNA/xV4CUphlpumiHi3Z7SfxIZno47pKbOh7UlCmEeNNdtFI88/YBrWaGEfDPFph6LQCgvXQbopbNYkUNIq2QA9vaXUG9r0NJr3o9WsoptAmfmrSkhP7RvrpqPOez6zlcxBX5OoryJTR21HIW8jP1Pn5+KRIynb3GJZF5dOHiiFJhZORr55IGslxddt0ze7INS+6N/9i6GBGZDA/5jqd+IWII+v2iB/rRDvafrqvOwQ8tTC1xtDpjYZJbTbSeQD36WQXmzENvGqHixa1mC8onZwEhIoP1VgmVpLx43HIMEQW54BkYwzhFIfP4q+0gwBHnt121gV8=
+  on:
+    tags: true
+    repo: PsychoLlama/graph-crdt
