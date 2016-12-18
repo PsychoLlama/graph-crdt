@@ -278,6 +278,22 @@ describe('A node', () => {
       merge.restore();
     });
 
+    it('should update the set of deferred items', () => {
+      deferred.merge({ future: true });
+      deferred.meta('future').state = clock + 100;
+
+      const scheduled = node.schedule(deferred, clock);
+      expect(node.deferred).toBeA(Set);
+
+      const update = scheduled[100];
+      expect(node.deferred.has(update)).toBe(true);
+
+      const [callback] = timeout.calls[0].arguments;
+      callback();
+
+      expect(node.deferred.has(update)).toBe(false);
+    });
+
     it('should return the scheduled updates', () => {
       const offset = {
         small: 200,
@@ -588,6 +604,7 @@ describe('A node', () => {
 
         node.merge(incoming);
 
+        expect(spy).toHaveBeenCalled();
         const [deferred] = spy.calls[0].arguments;
         expect(deferred).toBeA(Node);
 
@@ -603,6 +620,19 @@ describe('A node', () => {
 
         node.merge({ data: true });
         expect(spy).toNotHaveBeenCalled();
+      });
+
+      it('should carry over to copied nodes', () => {
+        incoming.merge({ future: true });
+        incoming.meta('future').state = clock + 100;
+
+        node.merge(incoming);
+
+        const copy = new Node();
+
+        expect(copy.deferred.size).toBe(0);
+        copy.merge(node);
+        expect(copy.deferred.size).toBe(1);
       });
 
     });

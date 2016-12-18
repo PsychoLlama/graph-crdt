@@ -85,6 +85,8 @@ export default class Node extends Emitter {
     this[node] = {
       '@object': { uid },
     };
+
+    this.deferred = new Set();
   }
 
   /**
@@ -156,6 +158,7 @@ export default class Node extends Emitter {
    */
   schedule (deferred, clock) {
     const updates = {};
+    let scheduled = false;
 
     /** Track updates by the time until they merge. */
     for (const [field] of deferred) {
@@ -169,7 +172,18 @@ export default class Node extends Emitter {
     for (const distance of Object.keys(updates)) {
       const delay = Number(distance);
       const update = updates[distance];
-      setTimeout(() => this.merge(update), delay);
+
+      this.deferred.add(update);
+      setTimeout(() => {
+        this.merge(update);
+        this.deferred.delete(update);
+      }, delay);
+
+      scheduled = true;
+    }
+
+    if (scheduled) {
+      this.emit('deferred', deferred);
     }
 
     return updates;
@@ -258,10 +272,13 @@ export default class Node extends Emitter {
       }
     }
 
+    for (const deferred of incoming.deferred) {
+      this.merge(deferred);
+    }
+
     /** Only emit when there's a change. */
     const changed = [...changes.update].length > 0;
     const overwritten = [...changes.history].length > 0;
-    const deferred = [...changes.deferred].length > 0;
 
     if (overwritten) {
       this.emit('history', changes.history);
@@ -269,10 +286,8 @@ export default class Node extends Emitter {
     if (changed) {
       this.emit('update', changes.update);
     }
-    if (deferred) {
-      this.emit('deferred', changes.deferred);
-      this.schedule(changes.deferred, clock);
-    }
+
+    this.schedule(changes.deferred, clock);
 
     return changes;
   }
