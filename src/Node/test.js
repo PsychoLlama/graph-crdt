@@ -384,14 +384,14 @@ describe('A node', () => {
         });
       });
 
-      it('should emit `historical` if updates are outdated', () => {
+      it('should emit `history` if updates are outdated', () => {
         incoming.merge({ data: 'old state' });
         incoming.meta('data').state = time() - 10;
 
         node.merge({ data: 'new state' });
 
         const spy = createSpy();
-        node.on('historical', spy);
+        node.on('history', spy);
 
         node.merge(incoming);
         const [history] = spy.calls[0].arguments;
@@ -404,10 +404,10 @@ describe('A node', () => {
         });
       });
 
-      it('should not emit `historical` without stale updates', () => {
+      it('should not emit `history` without stale updates', () => {
 
         const spy = createSpy();
-        node.on('historical', spy);
+        node.on('history', spy);
 
         incoming.merge({ 'new property': 'yeah' });
         incoming.meta('new property').state = time() - 10;

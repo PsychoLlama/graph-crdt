@@ -265,7 +265,7 @@ export default class Node extends Emitter {
     const deferred = [...changes.deferred].length > 0;
 
     if (overwritten) {
-      this.emit('historical', changes.history);
+      this.emit('history', changes.history);
     }
     if (changed) {
       this.emit('update', changes.update);

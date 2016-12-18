@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Changed
+- Node `historical` event renamed to `history`.
+
 ## v0.0.2
 ### Fixed
 - Graph members are no longer globally mutated (allows graph time travel).
