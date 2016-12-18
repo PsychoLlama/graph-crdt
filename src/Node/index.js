@@ -8,7 +8,6 @@ import { v4 as uuid } from 'uuid';
 import { conflict } from '../union';
 
 const node = Symbol('source object');
-const defer = Symbol('defer method');
 
 /**
  * An observable object with conflict-resolution.
@@ -150,25 +149,30 @@ export default class Node extends Emitter {
   }
 
   /**
-   * Schedule updates that have been deferred.
-   *
-   * @private
-   * @param  {String} key - The key to defer.
-   * @param  {Object} deferred - The value/state to defer.
-   * @param  {Number} clock - The current system time.
-   * @returns {undefined}
+   * Schedule the appropriate time to merge deferred values.
+   * @param  {Node} deferred - Must only contain deferred fields.
+   * @param  {Number} clock - Current machine state.
+   * @return {Object|null} - Time until merge mapped to each update.
    */
-  [defer] (key, deferred, clock) {
+  schedule (deferred, clock) {
+    const updates = {};
 
-    const { value, state } = deferred;
+    /** Track updates by the time until they merge. */
+    for (const [field] of deferred) {
+      const state = deferred.state(field);
+      const distance = state - clock;
+      const update = updates[distance] = updates[distance] || new Node();
+      update[node][field] = deferred.meta(field);
+    }
 
-    setTimeout(() => {
-      const incoming = Node.source({
-        [key]: { value, state },
-      });
+    /** Schedule each update. */
+    for (const distance of Object.keys(updates)) {
+      const delay = Number(distance);
+      const update = updates[distance];
+      setTimeout(() => this.merge(update), delay);
+    }
 
-      this.merge(incoming);
-    }, state - clock);
+    return updates;
   }
 
   /**
@@ -252,11 +256,6 @@ export default class Node extends Emitter {
 
         this[node][field] = meta;
       }
-
-      /** Schedule deferred updates. */
-      if (type === 'deferred') {
-        this[defer](field, meta, clock);
-      }
     }
 
     /** Only emit when there's a change. */
@@ -272,6 +271,7 @@ export default class Node extends Emitter {
     }
     if (deferred) {
       this.emit('deferred', changes.deferred);
+      this.schedule(changes.deferred, clock);
     }
 
     return changes;

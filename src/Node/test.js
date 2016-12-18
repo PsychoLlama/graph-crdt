@@ -1,7 +1,15 @@
-import { describe, it, beforeEach } from 'mocha';
-import expect, { createSpy } from 'expect';
+/* eslint-env mocha */
+import expect, { createSpy, spyOn } from 'expect';
 import Node from './index';
 import time from '../time';
+
+const toObject = (node) => [...node]
+.reduce((obj, [key, val]) => {
+  const copy = Object.assign({}, obj, {
+    [key]: val,
+  });
+  return copy;
+}, {});
 
 describe('Node static method', () => {
 
@@ -228,15 +236,109 @@ describe('A node', () => {
 
   });
 
-  describe('merge', () => {
+  describe('"schedule" call', () => {
+    let node, deferred, clock, timeout;
 
-    const toObject = (node) => [...node]
-    .reduce((obj, [key, val]) => {
-      const copy = Object.assign({}, obj, {
-        [key]: val,
+    beforeEach(() => {
+      node = new Node();
+      deferred = new Node();
+      clock = time();
+      timeout = spyOn(global, 'setTimeout');
+    });
+
+    afterEach(() => {
+      timeout.restore();
+    });
+
+    it('should schedule the next merge', () => {
+      const offset = 100;
+      deferred.merge({ stuff: true });
+      deferred.meta('stuff').state = clock + offset;
+
+      node.schedule(deferred, clock);
+
+      expect(timeout).toHaveBeenCalled();
+      const [, time] = timeout.calls[0].arguments;
+      expect(time).toBe(offset);
+    });
+
+    it('should merge the deferred values when ready', () => {
+      const merge = spyOn(node, 'merge');
+      deferred.merge({ next: 'value' });
+      deferred.meta('next').state = clock + 150;
+      node.schedule(deferred, clock);
+
+      const [callback] = timeout.calls[0].arguments;
+      callback();
+      expect(merge).toHaveBeenCalled();
+      const [update] = merge.calls[0].arguments;
+      expect(toObject(update)).toEqual({
+        next: 'value',
       });
-      return copy;
-    }, {});
+      merge.restore();
+    });
+
+    it('should return the scheduled updates', () => {
+      const offset = {
+        small: 200,
+        large: 500,
+      };
+
+      deferred.merge({
+        change: true,
+        update: 'hello',
+      });
+
+      deferred.meta('change').state = clock + offset.large;
+      deferred.meta('update').state = clock + offset.small;
+
+      const scheduled = node.schedule(deferred, clock);
+
+      let object = toObject(scheduled[offset.large]);
+      expect(object).toEqual({ change: true });
+
+      object = toObject(scheduled[offset.small]);
+      expect(object).toEqual({ update: 'hello' });
+    });
+
+    it('should schedule each update', () => {
+      deferred.merge({
+        updates: true,
+        changes: true,
+      });
+
+      deferred.meta('updates').state = clock + 200;
+      deferred.meta('updates').state = clock + 500;
+
+      node.schedule(deferred, clock);
+      expect(timeout.calls.length).toBe(2);
+    });
+
+    it('should batch updates', () => {
+      const offset = 100;
+
+      deferred.merge({
+        update: true,
+        change: true,
+      });
+
+      deferred.meta('update').state = clock + 100;
+      deferred.meta('change').state = clock + 100;
+
+      const scheduled = node.schedule(deferred, clock);
+      const object = toObject(scheduled[offset]);
+
+      expect(object).toEqual({
+        change: true,
+        update: true,
+      });
+
+      expect(timeout.calls.length).toBe(1);
+    });
+
+  });
+
+  describe('merge', () => {
 
     it('should namespace to avoid conflicts', () => {
       node.merge({ read: 'not a function' });
@@ -430,15 +532,16 @@ describe('A node', () => {
       // This should be ample.
       this.timeout(500);
 
-      let incoming;
+      let incoming, clock;
 
       beforeEach(() => {
         incoming = Node.create();
+        clock = time();
       });
 
       it('should not merge until that state is reached', (done) => {
         incoming.merge({ future: true });
-        incoming.meta('future').state = time() + 5;
+        incoming.meta('future').state = clock + 5;
         node.merge(incoming);
 
         expect(node.read('future')).toNotExist();
@@ -451,7 +554,7 @@ describe('A node', () => {
 
       it('should retry the merge later, not overwrite', (done) => {
         incoming.merge({ future: true });
-        incoming.meta('future').state = time() + 10;
+        incoming.meta('future').state = clock + 10;
         node.merge(incoming);
 
         // If it's going through `merge`,
@@ -465,7 +568,7 @@ describe('A node', () => {
 
       it('should return the deferred items', () => {
         incoming.merge({ future: true });
-        incoming.meta('future').state = time() + 100;
+        incoming.meta('future').state = clock + 100;
 
         const { deferred } = node.merge(incoming);
 
@@ -479,7 +582,7 @@ describe('A node', () => {
       it('should emit `deferred` when deferred updates come in', () => {
         const spy = createSpy();
         incoming.merge({ future: true });
-        incoming.meta('future').state = time() + 10;
+        incoming.meta('future').state = clock + 10;
 
         node.on('deferred', spy);
 

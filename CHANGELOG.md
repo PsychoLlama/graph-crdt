@@ -3,6 +3,8 @@
 ## Unreleased
 ### Changed
 - Node `historical` event renamed to `history`.
+### Added
+- New `Node#schedule` method schedules deferred updates.
 
 ## v0.0.2
 ### Fixed
