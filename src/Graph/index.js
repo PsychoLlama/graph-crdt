@@ -127,11 +127,19 @@ export default class Graph extends Emitter {
       deferred: new Graph(),
     };
 
-    for (const [, node] of graph) {
-      const delta = this.add(node);
-      changes.update.add(delta.update);
-      changes.history.add(delta.history);
-      changes.deferred.add(delta.deferred);
+    for (const [uid, node] of graph) {
+      let target = this.read(uid);
+
+      if (!target) {
+        target = this[nodes][uid] = new Node({ uid });
+        this.emit('add', target);
+      }
+
+      const { update, history, deferred } = target.merge(node);
+
+      changes.update[nodes][uid] = update;
+      changes.history[nodes][uid] = history;
+      changes.deferred[nodes][uid] = deferred;
     }
 
     this.emit('update', changes.update);

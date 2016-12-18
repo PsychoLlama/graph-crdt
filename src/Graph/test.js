@@ -220,13 +220,17 @@ describe('A graph', () => {
     });
 
     it('should ensure the subgraph is a Graph instance', () => {
-      const id = node1.toString();
-
-      graph.merge({
-        [id]: node1,
+      const { uid } = node1.meta();
+      node1.merge({
+        value: 'preserved',
       });
 
-      expect(graph.read(id)).toBe(node1);
+      graph.merge({
+        [uid]: node1,
+      });
+
+      const result = graph.read(uid);
+      expect(toObject(result)).toEqual(toObject(node1));
     });
 
     it('should add all the items in the subgraph', () => {
@@ -246,6 +250,19 @@ describe('A graph', () => {
 
       const result = graph.read(node1.toString());
       expect(result.read('data')).toBe('preserved');
+    });
+
+    it('should add node copies, not originals', () => {
+      const { uid } = node1.meta();
+      node1.merge({ isNode1: true });
+
+      graph.merge({
+        [node1]: node1,
+      });
+
+      const copied = graph.read(uid);
+      expect(toObject(copied)).toEqual({ isNode1: true });
+      expect(copied).toNotBe(node1);
     });
 
     it('should return the update delta', () => {
