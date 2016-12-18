@@ -1,10 +1,14 @@
 # Changelog
 
-## Unreleased
+## v0.0.3
 ### Changed
 - Node `historical` event renamed to `history`.
+
 ### Added
 - New `Node#schedule` method schedules deferred updates.
+
+### Fixed
+- Calling `Node#merge` wouldn't merge the incoming node's deferred updates.
 
 ## v0.0.2
 ### Fixed
