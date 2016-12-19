@@ -1,9 +1,9 @@
-import { describe, it, beforeEach } from 'mocha';
+/* eslint-env mocha */
+import expect, { createSpy } from 'expect';
+import { toObject } from '../test-helpers';
 import Graph from '../Graph';
 import Node from '../Node';
-import expect from 'expect';
 import time from '../time';
-const { createSpy } = expect;
 
 describe('Graph static method', () => {
 
@@ -39,13 +39,6 @@ describe('Graph static method', () => {
 });
 
 describe('A graph', () => {
-
-  const toObject = (node) => [...node]
-  .reduce((obj, [key, value]) => {
-    obj[key] = value;
-    return obj;
-  }, {});
-
   let graph;
 
   beforeEach(() => {

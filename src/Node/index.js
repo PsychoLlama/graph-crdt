@@ -214,18 +214,8 @@ export default class Node extends Emitter {
       return 'history';
     }
 
-    /** Handle the conflict. */
-    const field1 = this.meta(field);
-    const field2 = node.meta(field);
-    const winner = conflict(field1, field2);
-
-    /** Our current state is the winner. */
-    if (winner === field1) {
-      return 'history';
-    }
-
-    /** Agree on the newer state. */
-    return 'update';
+    /** They're both the same state. */
+    return 'conflict';
   }
 
   /**
@@ -253,22 +243,35 @@ export default class Node extends Emitter {
     };
 
     for (const [field] of incoming) {
-      const type = this.compare(field, incoming, clock);
-      const meta = incoming.meta(field);
+      let type = this.compare(field, incoming, clock);
+
+      const current = this.meta(field);
+      const update = incoming.meta(field);
+
+      if (type === 'conflict') {
+        const winner = conflict(current, update);
+
+        /** No further action needed. */
+        if (winner === current) {
+          break;
+        }
+
+        this.emit('conflict', update, current);
+        type = 'update';
+      }
 
       /** Track the change. */
-      changes[type][node][field] = meta;
+      changes[type][node][field] = update;
 
       /** Immediately apply updates. */
       if (type === 'update') {
 
         /** Track overwritten values. */
-        const existing = this.meta(field);
-        if (existing) {
-          changes.history[node][field] = existing;
+        if (current) {
+          changes.history[node][field] = current;
         }
 
-        this[node][field] = meta;
+        this[node][field] = update;
       }
     }
 
