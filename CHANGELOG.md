@@ -2,7 +2,7 @@
 
 `graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
 
-## Unreleased
+## v0.2.0
 ### Changed
 - Renamed `Graph#read` to `Graph#value`.
 
