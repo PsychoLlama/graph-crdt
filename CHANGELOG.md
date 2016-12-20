@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+`graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
+
+## v0.1.0
 ### Added
 - `Node#new` method, creates a new instance of the same type using the same configuration (such as `uid`).
 
