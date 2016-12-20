@@ -73,6 +73,10 @@ export default class Graph extends Emitter {
     return this[nodes][key] || null;
   }
 
+  new () {
+    return new Graph();
+  }
+
   /**
    * Merge one graph with another (graph union operation).
    *
@@ -88,9 +92,9 @@ export default class Graph extends Emitter {
     }
 
     const changes = {
-      update: new Graph(),
-      history: new Graph(),
-      deferred: new Graph(),
+      update: this.new(),
+      history: this.new(),
+      deferred: this.new(),
     };
 
     for (const [uid, node] of graph) {

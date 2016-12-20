@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import expect, { createSpy } from 'expect';
+import expect, { spyOn, createSpy } from 'expect';
 import { toObject } from '../test-helpers';
 import Graph from '../Graph';
 import Node from '../Node';
@@ -249,6 +249,42 @@ describe('A graph', () => {
 
       const { history } = graph.merge({ [update]: update });
       expect(spy).toHaveBeenCalledWith(history);
+    });
+
+    it('should use Graph#new to create deltas', () => {
+      const spy = spyOn(graph, 'new').andCall(() => {
+        const graph = new Graph();
+        graph.viaNew = true;
+
+        return graph;
+      });
+
+      const { update, history, deferred } = graph.merge({});
+
+      expect(update).toContain({ viaNew: true });
+      expect(history).toContain({ viaNew: true });
+      expect(deferred).toContain({ viaNew: true });
+
+      spy.restore();
+    });
+
+  });
+
+  describe('"new" call', () => {
+    let node;
+
+    beforeEach(() => {
+      node = new Node();
+    });
+
+    it('should return a new graph', () => {
+      graph.merge({ [node]: node });
+
+      const copy = graph.new();
+      expect(copy).toBeA(Graph);
+
+      // Must be a copy.
+      expect(copy).toNotBe(graph);
     });
 
   });

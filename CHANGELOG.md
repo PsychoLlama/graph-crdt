@@ -6,6 +6,9 @@
 ### Changed
 - Renamed `Graph#read` to `Graph#value`.
 
+### Added
+- New `Graph#new` method, primarily for subclasses.
+
 ## v0.1.0
 ### Added
 - `Node#new` method, creates a new instance of the same type using the same configuration (such as `uid`).
