@@ -16,7 +16,7 @@ describe('Graph static method', () => {
       graph.merge({ [node]: node });
 
       const copy = Graph.source(graph.toJSON());
-      expect(copy.read('member').value('data')).toBe(true);
+      expect(copy.value('member').value('data')).toBe(true);
     });
 
     it('should source nested POJOs into nodes', () => {
@@ -31,7 +31,7 @@ describe('Graph static method', () => {
       });
 
       const [key] = [...graph].map(([key]) => key);
-      expect(graph.read(key)).toBeA(Node);
+      expect(graph.value(key)).toBeA(Node);
     });
 
   });
@@ -92,7 +92,7 @@ describe('A graph', () => {
     });
 
     it('should return existing nodes', () => {
-      const result = graph.read(node.toString());
+      const result = graph.value(node.toString());
 
       expect(result.meta()).toContain({
         uid: String(node),
@@ -100,7 +100,7 @@ describe('A graph', () => {
     });
 
     it('should return null for non-existent nodes', () => {
-      const result = graph.read('potato');
+      const result = graph.value('potato');
       expect(result).toBe(null);
     });
 
@@ -130,7 +130,7 @@ describe('A graph', () => {
         [uid]: node1,
       });
 
-      const result = graph.read(uid);
+      const result = graph.value(uid);
       expect(toObject(result)).toEqual(toObject(node1));
     });
 
@@ -149,7 +149,7 @@ describe('A graph', () => {
         [node1]: node1.toJSON(),
       });
 
-      const result = graph.read(node1.toString());
+      const result = graph.value(node1.toString());
       expect(result.value('data')).toBe('preserved');
     });
 
@@ -161,7 +161,7 @@ describe('A graph', () => {
         [node1]: node1,
       });
 
-      const copied = graph.read(uid);
+      const copied = graph.value(uid);
       expect(toObject(copied)).toEqual({ isNode1: true });
       expect(copied).toNotBe(node1);
     });
@@ -199,7 +199,7 @@ describe('A graph', () => {
 
       const { deferred } = graph.merge({ [uid]: update });
 
-      const node = deferred.read(uid);
+      const node = deferred.value(uid);
       expect(node).toBeA(Node);
 
       expect(toObject(node)).toEqual({
@@ -231,7 +231,7 @@ describe('A graph', () => {
       graph.merge({ [data]: data });
       const { history } = graph.merge({ [update]: update });
 
-      const node = history.read('existing');
+      const node = history.value('existing');
       expect(node).toBeA(Node);
       expect(toObject(node)).toEqual({
         old: true,

@@ -69,7 +69,7 @@ export default class Graph extends Emitter {
    * @param  {String} key - The name/uid of the node.
    * @returns {Node|null} - The node if found, otherwise `null`.
    */
-  read (key) {
+  value (key) {
     return this[nodes][key] || null;
   }
 
@@ -94,7 +94,7 @@ export default class Graph extends Emitter {
     };
 
     for (const [uid, node] of graph) {
-      let target = this.read(uid);
+      let target = this.value(uid);
 
       if (!target) {
         target = this[nodes][uid] = node.new();
@@ -123,7 +123,7 @@ export default class Graph extends Emitter {
 
     for (const key in object) {
       if (object.hasOwnProperty(key)) {
-        const value = this.read(key);
+        const value = this.value(key);
         yield [key, value];
       }
     }
