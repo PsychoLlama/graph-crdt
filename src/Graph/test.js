@@ -16,7 +16,7 @@ describe('Graph static method', () => {
       graph.merge({ [node]: node });
 
       const copy = Graph.source(graph.toJSON());
-      expect(copy.read('member').read('data')).toBe(true);
+      expect(copy.read('member').value('data')).toBe(true);
     });
 
     it('should source nested POJOs into nodes', () => {
@@ -150,7 +150,7 @@ describe('A graph', () => {
       });
 
       const result = graph.read(node1.toString());
-      expect(result.read('data')).toBe('preserved');
+      expect(result.value('data')).toBe('preserved');
     });
 
     it('should add node copies, not originals', () => {

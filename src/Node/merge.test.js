@@ -14,12 +14,12 @@ describe('A node merge', () => {
 
   it('should namespace to avoid conflicts', () => {
     node.merge({ read: 'not a function' });
-    expect(node.read).toBeA(Function);
+    expect(node.value).toBeA(Function);
   });
 
   it('should convert POJOs into Nodes', () => {
     node.merge({ data: 'success' });
-    expect(node.read('data')).toBe('success');
+    expect(node.value('data')).toBe('success');
   });
 
   it('should use the same node ID for new change nodes', () => {
@@ -44,12 +44,12 @@ describe('A node merge', () => {
     it('should update existing properties', () => {
       const incoming = Node.from({ data: false });
       node.merge(incoming);
-      expect(node.read('data')).toBe(false);
+      expect(node.value('data')).toBe(false);
 
       incoming.merge({ data: true });
       node.merge(incoming);
 
-      expect(node.read('data')).toBe(true);
+      expect(node.value('data')).toBe(true);
     });
 
     it('should emit `update` after updates', () => {
@@ -119,7 +119,7 @@ describe('A node merge', () => {
 
       node.merge(incoming);
 
-      expect(node.read('hello')).toBe('World');
+      expect(node.value('hello')).toBe('World');
 
     });
 
@@ -130,7 +130,7 @@ describe('A node merge', () => {
 
       node.merge(incoming);
 
-      expect(node.read('success')).toBe(true);
+      expect(node.value('success')).toBe(true);
     });
 
     it('should return the history', () => {
@@ -216,10 +216,10 @@ describe('A node merge', () => {
       incoming.meta('future').state = clock + 5;
       node.merge(incoming);
 
-      expect(node.read('future')).toNotExist();
+      expect(node.value('future')).toNotExist();
 
       setTimeout(() => {
-        expect(node.read('future')).toBe(true);
+        expect(node.value('future')).toBe(true);
         done();
       }, 10);
     });

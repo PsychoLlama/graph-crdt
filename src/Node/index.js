@@ -67,7 +67,7 @@ export default class Node extends Emitter {
    * const parsed = JSON.parse(serialized)
    *
    * const node = Node.source(parsed)
-   * node.read('data') // 'intact'
+   * node.value('data') // 'intact'
    */
   static source (object) {
     const instance = Node.create();
@@ -118,7 +118,7 @@ export default class Node extends Emitter {
    * or undefined if it doesn't exist. Cannot be called
    * on reserved fields (like "@object").
    */
-  read (field) {
+  value (field) {
     if (field === '@object') {
       return undefined;
     }
@@ -319,7 +319,7 @@ export default class Node extends Emitter {
 
       /** Ignore prototype values and node metadata. */
       if (object.hasOwnProperty(key) && key !== meta) {
-        const value = this.read(key);
+        const value = this.value(key);
         yield [key, value];
       }
 

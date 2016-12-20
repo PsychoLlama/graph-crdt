@@ -24,8 +24,8 @@ describe('Node static method', () => {
         birthday: date,
       });
 
-      expect(node.read('name')).toBe('Sam');
-      expect(node.read('birthday')).toBe(date);
+      expect(node.value('name')).toBe('Sam');
+      expect(node.value('birthday')).toBe(date);
     });
 
     it('should set the state to the current time', () => {
@@ -47,7 +47,7 @@ describe('Node static method', () => {
       const string = JSON.stringify(node);
       const object = JSON.parse(string);
       const copy = Node.source(object);
-      expect(copy.read('data')).toBe('intact');
+      expect(copy.value('data')).toBe('intact');
     });
 
   });
@@ -157,7 +157,7 @@ describe('A node', () => {
   describe('property lookup', () => {
 
     it('should return undefined if the key cannot be found', () => {
-      const result = node.read('no such key');
+      const result = node.value('no such key');
       expect(result).toBe(undefined);
     });
 
@@ -166,7 +166,7 @@ describe('A node', () => {
       // Please, never do this in your code.
       node.meta().value = 'failure!';
 
-      const result = node.read('@object');
+      const result = node.value('@object');
       expect(result).toBe(undefined);
     });
 
