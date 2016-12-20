@@ -338,4 +338,24 @@ describe('A node', () => {
 
   });
 
+  describe('"clone" call', () => {
+
+    it('should create a new node', () => {
+      node.merge({ stuff: true });
+      const copy = node.clone();
+
+      expect(copy).toNotBe(node);
+      expect(copy).toBeA(Node);
+      expect(toObject(copy)).toEqual(toObject(node));
+    });
+
+    it('should create a node with the same ID', () => {
+      const { uid } = node.meta();
+      const copy = node.clone();
+
+      expect(copy.meta()).toContain({ uid });
+    });
+
+  });
+
 });

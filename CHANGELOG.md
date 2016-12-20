@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.5
+### Added
+- New `Node#clone` method which creates a copy of the node.
+
 ## v0.0.4
 ### Added
 - New `conflict` event on Node instances (only happens when a conflict overwrites the current value).

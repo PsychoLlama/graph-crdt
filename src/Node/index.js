@@ -296,6 +296,20 @@ export default class Node extends Emitter {
   }
 
   /**
+   * Creates a copy if the current node.
+   * @return {Node} - A new node instance with the same properties
+   * and deferred updates.
+   */
+  clone () {
+    const { uid } = this.meta();
+    const clone = new Node({ uid });
+
+    clone.merge(this);
+
+    return clone;
+  }
+
+  /**
    * Iterates over the node keys & values, ignoring metadata.
    * @return {Array} - Each value yielded is a [key, value] pair.
    */

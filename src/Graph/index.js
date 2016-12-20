@@ -131,7 +131,7 @@ export default class Graph extends Emitter {
       let target = this.read(uid);
 
       if (!target) {
-        target = this[nodes][uid] = new Node({ uid });
+        target = this[nodes][uid] = node.clone();
         this.emit('add', target);
       }
 
