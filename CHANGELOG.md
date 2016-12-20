@@ -6,6 +6,7 @@
 
 ### Removed
 - `Node#clone` has been replaced in favor of `Node#new`, which does not copy properties.
+- `Graph#add` has been removed in favor of `Graph#merge`.
 
 ## v0.0.5
 ### Added

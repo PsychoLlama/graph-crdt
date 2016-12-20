@@ -13,7 +13,7 @@ describe('Graph static method', () => {
       const node = Node.create({ uid: 'member' });
       const graph = Graph.create();
       node.merge({ data: true });
-      graph.add(node);
+      graph.merge({ [node]: node });
 
       const copy = Graph.source(graph.toJSON());
       expect(copy.read('member').read('data')).toBe(true);
@@ -54,7 +54,7 @@ describe('A graph', () => {
   it('should return the nodes when `toJSON` is called', () => {
     const node = Node.create({ uid: 'unique id' });
     node.merge({ data: 'intact' });
-    graph.add(node);
+    graph.merge({ [node]: node });
 
     const string = JSON.stringify(graph);
     expect(string).toContain('unique id');
@@ -66,8 +66,11 @@ describe('A graph', () => {
     it('should list all the node indices', () => {
       const first = Node.create({ uid: 'first' });
       const second = Node.create({ uid: 'second' });
-      graph.add(first);
-      graph.add(second);
+
+      graph.merge({
+        [first]: first,
+        [second]: second,
+      });
 
       const entries = [...graph];
 
@@ -79,116 +82,21 @@ describe('A graph', () => {
 
   });
 
-  describe('"add" call', () => {
-
-    let node;
-
-    beforeEach(() => {
-      node = Node.create();
-    });
-
-    it('should add the node given', () => {
-      graph.add(node);
-      const { uid } = node.meta();
-      const keys = [...graph].map(([key]) => key);
-      expect(keys).toContain(uid);
-    });
-
-    it('should emit `add` if it\'s a new node', () => {
-      const spy = createSpy();
-      graph.on('add', spy);
-
-      graph.add(node);
-      expect(spy).toHaveBeenCalledWith(node);
-    });
-
-    it('should not emit `add` if the node was already added', () => {
-
-      // Add the node the first time...
-      graph.add(node);
-
-      const spy = createSpy();
-      graph.on('add', spy);
-
-      // It's already there. Shouldn't fire.
-      graph.add(node);
-
-      expect(spy).toNotHaveBeenCalled();
-    });
-
-    it('should merge nodes with the same uid', () => {
-      graph.add(node);
-      const similar = Node.create({ uid: node.toString() });
-
-      // Add a new property.
-      similar.merge({ hello: 'world' });
-
-      // Should merge with `node`.
-      graph.add(similar);
-
-      expect(node.read('hello')).toBe('world');
-    });
-
-    it('should convert objects to nodes', () => {
-      graph.add({ hello: 'graph' });
-
-      const [key] = [...graph].map(([key]) => key);
-      expect(graph.read(key)).toBeA(Node);
-    });
-
-    it('should return a delta object', () => {
-      const { update, history, deferred } = graph.add(node);
-
-      expect(update).toBe(node);
-      expect(history).toBeA(Node);
-      expect(deferred).toBeA(Node);
-
-      const object = {
-        update: toObject(update),
-        node: toObject(node),
-      };
-      expect(object.update).toEqual(object.node);
-    });
-
-    it('should return the node merge deltas', () => {
-      node.merge({ old: true });
-      const update = new Node({
-        uid: node.toString(),
-      });
-
-      graph.add(node);
-
-      const result = graph.add(update);
-
-      expect(result).toBeAn(Object);
-      expect(result.update).toBeA(Node);
-      expect(result.history).toBeA(Node);
-      expect(result.deferred).toBeA(Node);
-    });
-
-    it('should preserve the Node uids in delta nodes', () => {
-      const { update, history, deferred } = graph.add(node);
-      const { uid } = node.meta();
-      expect(update.meta()).toContain({ uid });
-      expect(history.meta()).toContain({ uid });
-      expect(deferred.meta()).toContain({ uid });
-    });
-
-  });
-
   describe('"read" call', () => {
 
     let node;
 
     beforeEach(() => {
       node = Node.create({ uid: 'dave' });
-      graph.add(node);
+      graph.merge({ [node]: node });
     });
 
     it('should return existing nodes', () => {
       const result = graph.read(node.toString());
 
-      expect(result).toBe(node);
+      expect(result.meta()).toContain({
+        uid: String(node),
+      });
     });
 
     it('should return null for non-existent nodes', () => {

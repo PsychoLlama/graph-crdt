@@ -40,18 +40,18 @@ export default class Graph extends Emitter {
     // For each node...
     Object.keys(object).forEach((key) => {
 
-      const value = object[key];
+      let node = object[key];
 
       // Make sure it's a node.
-      if (value instanceof Node) {
-        graph.add(value);
-      } else {
-
-        // If it isn't, turn it into one.
-        // Assume it's preformatted.
-        const node = Node.source(value);
-        graph.add(node);
+      if (!(node instanceof Node)) {
+        node = Node.source(node);
       }
+
+      // Get it's unique ID.
+      const { uid } = node.meta();
+
+      // Add it to the new graph.
+      graph[nodes][uid] = node;
     });
 
     return graph;
@@ -74,41 +74,7 @@ export default class Graph extends Emitter {
   }
 
   /**
-   * Add a node to the graph, merging if it already exists. If
-   * passed a plain object, it will convert it into a node using
-   * `Node.from`.
-   *
-   * @emits Graph#event:add
-   * @param  {Node} node - The data to add.
-   * @returns {Graph} - The context object.
-   */
-  add (node) {
-
-    if (!(node instanceof Node)) {
-      node = Node.from(node);
-    }
-
-    const { uid } = node.meta();
-
-    const existing = this[nodes][uid];
-    if (existing) {
-      return existing.merge(node);
-    }
-
-    this[nodes][uid] = node;
-
-    this.emit('add', node);
-
-    return {
-      update: node,
-      history: new Node({ uid }),
-      deferred: new Node({ uid }),
-    };
-  }
-
-  /**
    * Merge one graph with another (graph union operation).
-   * Calls add under the hood.
    *
    * @param  {Object} graph - The graph to merge with.
    * Items must be enumerable, and cannot be inherited from prototypes.
@@ -132,7 +98,6 @@ export default class Graph extends Emitter {
 
       if (!target) {
         target = this[nodes][uid] = node.new();
-        this.emit('add', target);
       }
 
       const { update, history, deferred } = target.merge(node);
