@@ -233,13 +233,12 @@ export default class Node extends Emitter {
     }
 
     const clock = time();
-    const { uid } = this.meta();
 
     /** Track all mutations. */
     const changes = {
-      history: new Node({ uid }),
-      update: new Node({ uid }),
-      deferred: new Node({ uid }),
+      history: this.new(),
+      update: this.new(),
+      deferred: this.new(),
     };
 
     for (const [field] of incoming) {
@@ -296,15 +295,13 @@ export default class Node extends Emitter {
   }
 
   /**
-   * Creates a copy if the current node.
+   * Creates an empty instance with the same configuration.
    * @return {Node} - A new node instance with the same properties
    * and deferred updates.
    */
-  clone () {
+  new () {
     const { uid } = this.meta();
     const clone = new Node({ uid });
-
-    clone.merge(this);
 
     return clone;
   }

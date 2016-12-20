@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Added
+- `Node#new` method, creates a new instance of the same type using the same configuration (such as `uid`).
+
+### Removed
+- `Node#clone` has been replaced in favor of `Node#new`, which does not copy properties.
+
 ## v0.0.5
 ### Added
 - New `Node#clone` method which creates a copy of the node.
