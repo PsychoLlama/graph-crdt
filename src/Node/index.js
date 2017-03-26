@@ -9,6 +9,28 @@ import { conflict } from '../union';
 const node = Symbol('source object');
 
 /**
+ * Increments each state given an object of key/value pairs.
+ * @private
+ * @param  {Node} current - Current state.
+ * @param  {Object} update - Key-value update pairs.
+ * @return {Node} - Incremented update.
+ */
+const getIncrementedState = (current, update) => {
+  const result = current.new();
+
+  for (const field in update) {
+    if (update.hasOwnProperty(field)) {
+      const state = current.state(field) + 1;
+      const value = update[field];
+
+      result[node][field] = { value, state };
+    }
+  }
+
+  return result;
+};
+
+/**
  * An observable object with conflict-resolution.
  *
  * @class Node
@@ -49,21 +71,6 @@ export default class Node extends Emitter {
     }
 
     return instance;
-  }
-
-  static increment (current, changes) {
-    const value = new Node();
-
-    for (const key in changes) {
-      if (changes.hasOwnProperty(key)) {
-        value[node][key] = {
-          state: current.state(key) + 1,
-          value: changes[key],
-        };
-      }
-    }
-
-    return value;
   }
 
   /**
@@ -160,29 +167,6 @@ export default class Node extends Emitter {
   }
 
   /**
-   * @param  {String} field - The field name to compare.
-   * @param  {Node} node - A node instance to compare against.
-   * @return {String} - The relative position of the compared value.
-   */
-  compare (field, node) {
-    const current = this.state(field);
-    const update = node.state(field);
-
-    /** Newer than our current data. */
-    if (update > current) {
-      return 'update';
-    }
-
-    /** Older than the data we have. */
-    if (update < current) {
-      return 'history';
-    }
-
-    /** They're both the same state. */
-    return 'conflict';
-  }
-
-  /**
    * Merges an update into the current node.
    *
    * @param  {Node} incoming - The node to merge from.
@@ -191,9 +175,8 @@ export default class Node extends Emitter {
    * @returns {Object} - A collection of changes caused by the merge.
    */
   merge (incoming) {
-
     if (!(incoming instanceof Node)) {
-      incoming = Node.increment(this, incoming);
+      incoming = getIncrementedState(this, incoming);
     }
 
     /** Track all mutations. */
@@ -203,12 +186,17 @@ export default class Node extends Emitter {
     };
 
     for (const [field] of incoming) {
-      let type = this.compare(field, incoming);
+      let forceUpdate = false;
 
       const current = this.meta(field);
       const update = incoming.meta(field);
+      const state = {
+        incoming: incoming.state(field),
+        current: this.state(field),
+      };
 
-      if (type === 'conflict') {
+      /** Handle conflicts. */
+      if (state.current === state.incoming) {
         const winner = conflict(current, update);
 
         /** No further action needed. */
@@ -216,22 +204,24 @@ export default class Node extends Emitter {
           break;
         }
 
+        /** Replace the current value */
         this.emit('conflict', update, current);
-        type = 'update';
+        forceUpdate = true;
       }
 
-      /** Track the change. */
-      changes[type][node][field] = update;
-
-      /** Immediately apply updates. */
-      if (type === 'update') {
+      if (state.current < state.incoming || forceUpdate) {
 
         /** Track overwritten values. */
         if (current) {
           changes.history[node][field] = current;
         }
 
+        changes.update[node][field] = update;
+
+        /** Immediately apply updates. */
         this[node][field] = update;
+      } else {
+        changes.history[node][field] = update;
       }
     }
 

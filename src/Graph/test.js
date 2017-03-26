@@ -222,7 +222,6 @@ describe('A graph', () => {
 
       spy.restore();
     });
-
   });
 
   describe('"new" call', () => {

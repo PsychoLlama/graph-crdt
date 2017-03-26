@@ -149,52 +149,12 @@ describe('A node', () => {
     });
   });
 
-  describe('state comparison', () => {
-    let node, update;
-
-    beforeEach(() => {
-      node = Node.from({ old: true });
-      node.meta('old').state = 1;
-      update = Node.from({ old: false });
-      update.meta('old').state = 2;
-    });
-
-    it('marks newer values as updates', () => {
-      const state = node.compare('old', update);
-      expect(state).toBe('update');
-    });
-
-    it('marks older values as history', () => {
-      const state = update.compare('old', node);
-      expect(state).toBe('history');
-    });
-
-    it('returns `conflict` on conflicts', () => {
-
-      // Same state.
-      node.merge({ old: 1 });
-      update.merge({ old: 2 });
-      node.meta('old').state = update.meta('old').state;
-
-      const state = node.compare('old', update);
-      expect(state).toBe('conflict');
-    });
-
-    it('marks new fields as updates', () => {
-      update.merge({ feature: 'new property!' });
-      const state = node.compare('feature', update);
-      expect(state).toBe('update');
-    });
-  });
-
-  describe('"clone" call', () => {
+  describe('"new" call', () => {
     it('creates a node with the same ID', () => {
       const { uid } = node.meta();
       const copy = node.new();
 
       expect(copy.meta()).toContain({ uid });
-      // const node = Node.from({hello: 'world'});
-      // node.merge({hello: 'potato'});
     });
 
     it('does not carry over any properties', () => {
