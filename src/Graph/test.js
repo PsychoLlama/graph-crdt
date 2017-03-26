@@ -3,13 +3,10 @@ import expect, { spyOn, createSpy } from 'expect';
 import { toObject } from '../test-helpers';
 import Graph from '../Graph';
 import Node from '../Node';
-import time from '../time';
 
 describe('Graph static method', () => {
-
   describe('"source"', () => {
-
-    it('should use the input as it\'s data source', () => {
+    it('uses the input as it\'s data source', () => {
       const node = Node.create({ uid: 'member' });
       const graph = Graph.create();
       node.merge({ data: true });
@@ -19,7 +16,7 @@ describe('Graph static method', () => {
       expect(copy.value('member').value('data')).toBe(true);
     });
 
-    it('should source nested POJOs into nodes', () => {
+    it('sources nested POJOs into nodes', () => {
       const node = Node.create();
       node.merge({ data: true });
       const copy = JSON.parse(JSON.stringify(node));
@@ -33,9 +30,7 @@ describe('Graph static method', () => {
       const [key] = [...graph].map(([key]) => key);
       expect(graph.value(key)).toBeA(Node);
     });
-
   });
-
 });
 
 describe('A graph', () => {
@@ -45,13 +40,13 @@ describe('A graph', () => {
     graph = new Graph();
   });
 
-  it('should be initialized empty', () => {
+  it('is initialized empty', () => {
     const keys = [...graph].map(([key]) => key);
 
     expect(keys.length).toBe(0);
   });
 
-  it('should return the nodes when `toJSON` is called', () => {
+  it('returns the nodes when `toJSON` is called', () => {
     const node = Node.create({ uid: 'unique id' });
     node.merge({ data: 'intact' });
     graph.merge({ [node]: node });
@@ -62,8 +57,7 @@ describe('A graph', () => {
   });
 
   describe('iterator', () => {
-
-    it('should list all the node indices', () => {
+    it('lists all the node indices', () => {
       const first = Node.create({ uid: 'first' });
       const second = Node.create({ uid: 'second' });
 
@@ -79,11 +73,9 @@ describe('A graph', () => {
         ['second', second],
       ]);
     });
-
   });
 
   describe('"read" call', () => {
-
     let node;
 
     beforeEach(() => {
@@ -91,7 +83,7 @@ describe('A graph', () => {
       graph.merge({ [node]: node });
     });
 
-    it('should return existing nodes', () => {
+    it('returns existing nodes', () => {
       const result = graph.value(node.toString());
 
       expect(result.meta()).toContain({
@@ -99,15 +91,13 @@ describe('A graph', () => {
       });
     });
 
-    it('should return null for non-existent nodes', () => {
+    it('returns null for non-existent nodes', () => {
       const result = graph.value('potato');
       expect(result).toBe(null);
     });
-
   });
 
   describe('merge', () => {
-
     let node1, node2, subgraph;
 
     beforeEach(() => {
@@ -120,7 +110,7 @@ describe('A graph', () => {
       });
     });
 
-    it('should ensure the subgraph is a Graph instance', () => {
+    it('ensures the subgraph is a Graph instance', () => {
       const { uid } = node1.meta();
       node1.merge({
         value: 'preserved',
@@ -134,7 +124,7 @@ describe('A graph', () => {
       expect(toObject(result)).toEqual(toObject(node1));
     });
 
-    it('should add all the items in the subgraph', () => {
+    it('adds all the items in the subgraph', () => {
       graph.merge(subgraph);
 
       const keys = [...graph].map(([key]) => key);
@@ -142,7 +132,7 @@ describe('A graph', () => {
       expect(keys).toContain(node2.toString());
     });
 
-    it('should assume sub-objects are already formatted', () => {
+    it('assumes sub-objects are already formatted', () => {
       node1.merge({ data: 'preserved' });
 
       graph.merge({
@@ -153,7 +143,7 @@ describe('A graph', () => {
       expect(result.value('data')).toBe('preserved');
     });
 
-    it('should add node copies, not originals', () => {
+    it('adds node copies, not originals', () => {
       const { uid } = node1.meta();
       node1.merge({ isNode1: true });
 
@@ -166,7 +156,7 @@ describe('A graph', () => {
       expect(copied).toNotBe(node1);
     });
 
-    it('should return the update delta', () => {
+    it('returns the update delta', () => {
       const { update } = graph.merge({
         [node2]: node2,
       });
@@ -177,7 +167,7 @@ describe('A graph', () => {
       });
     });
 
-    it('should emit an `update` delta graph on change', () => {
+    it('emits an `update` delta graph on change', () => {
       const spy = createSpy();
       graph.on('update', spy);
 
@@ -188,58 +178,23 @@ describe('A graph', () => {
       expect(spy).toHaveBeenCalledWith(update);
     });
 
-    it('should return the deferred delta', () => {
-      const { uid } = node2.meta();
-
-      graph.merge({ [uid]: node2 });
-
-      const update = new Node({ uid });
-      update.merge({ change: true });
-      update.meta('change').state = time() + 100;
-
-      const { deferred } = graph.merge({ [uid]: update });
-
-      const node = deferred.value(uid);
-      expect(node).toBeA(Node);
-
-      expect(toObject(node)).toEqual({
-        change: true,
-      });
-    });
-
-    it('should emit a `deferred` graph on update', () => {
-      const spy = createSpy();
-      const update = new Node();
-      update.merge({ future: true });
-      update.meta().state = time() + 100;
-
-      graph.on('deferred', spy);
-      const { deferred } = graph.merge({
-        [update]: update,
-      });
-
-      expect(spy).toHaveBeenCalledWith(deferred);
-    });
-
-    it('should return the history delta', () => {
-
+    it('returns the history delta', () => {
       const data = new Node({ uid: 'existing' });
       const update = new Node({ uid: 'existing' });
       data.merge({ old: true });
+      data.meta('old').state = 1;
       update.merge({ old: false });
+      update.meta('old').state = 2;
 
       graph.merge({ [data]: data });
       const { history } = graph.merge({ [update]: update });
 
       const node = history.value('existing');
       expect(node).toBeA(Node);
-      expect(toObject(node)).toEqual({
-        old: true,
-      });
-
+      expect(toObject(node)).toEqual({ old: true });
     });
 
-    it('should emit a `history` graph delta', () => {
+    it('emits a `history` graph delta', () => {
       const spy = createSpy();
       graph.on('history', spy);
 
@@ -251,7 +206,7 @@ describe('A graph', () => {
       expect(spy).toHaveBeenCalledWith(history);
     });
 
-    it('should use Graph#new to create deltas', () => {
+    it('uses Graph#new to create deltas', () => {
       const spy = spyOn(graph, 'new').andCall(() => {
         const graph = new Graph();
         graph.viaNew = true;
@@ -259,15 +214,13 @@ describe('A graph', () => {
         return graph;
       });
 
-      const { update, history, deferred } = graph.merge({});
+      const { update, history } = graph.merge({});
 
       expect(update).toContain({ viaNew: true });
       expect(history).toContain({ viaNew: true });
-      expect(deferred).toContain({ viaNew: true });
 
       spy.restore();
     });
-
   });
 
   describe('"new" call', () => {
@@ -277,7 +230,7 @@ describe('A graph', () => {
       node = new Node();
     });
 
-    it('should return a new graph', () => {
+    it('returns a new graph', () => {
       graph.merge({ [node]: node });
 
       const copy = graph.new();
@@ -286,7 +239,5 @@ describe('A graph', () => {
       // Must be a copy.
       expect(copy).toNotBe(graph);
     });
-
   });
-
 });

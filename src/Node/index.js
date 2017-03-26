@@ -3,11 +3,32 @@
  */
 
 import Emitter from 'eventemitter3';
-import time from '../time';
 import { v4 as uuid } from 'uuid';
 import { conflict } from '../union';
 
 const node = Symbol('source object');
+
+/**
+ * Increments each state given an object of key/value pairs.
+ * @private
+ * @param  {Node} current - Current state.
+ * @param  {Object} update - Key-value update pairs.
+ * @return {Node} - Incremented update.
+ */
+const getIncrementedState = (current, update) => {
+  const result = current.new();
+
+  for (const field in update) {
+    if (update.hasOwnProperty(field)) {
+      const state = current.state(field) + 1;
+      const value = update[field];
+
+      result[node][field] = { value, state };
+    }
+  }
+
+  return result;
+};
 
 /**
  * An observable object with conflict-resolution.
@@ -38,9 +59,9 @@ export default class Node extends Emitter {
    * @param  {Object} object - Any enumerable object.
    * @returns {Node} - A node interface constructed from the object.
    */
-  static 'from' (object) {
+  static from (object) {
     const instance = Node.create();
-    const state = time();
+    const state = 1;
 
     for (const key in object) {
       if (object.hasOwnProperty(key)) {
@@ -85,8 +106,6 @@ export default class Node extends Emitter {
     this[node] = {
       '@object': { uid },
     };
-
-    this.deferred = new Set();
   }
 
   /**
@@ -134,88 +153,17 @@ export default class Node extends Emitter {
   }
 
   /**
-   * Get the state of the last update on a property.
+   * Get the current state of a property.
    *
-   * @param  {String} field - The name of the property.
-   * @returns {Mixed} - Whatever state comparison method
-   * was chosen. If the property doesn't exist, -Infinity
-   * is returned.
+   * @param  {String} field - Property name.
+   * @returns {Number} - Current lamport state (or 0).
    */
   state (field) {
 
     /** Get the field metadata. */
-    const subject = this.meta(field);
+    const meta = this.meta(field);
 
-    /** Return the state if it exists, or -Infinity when it doesn't. */
-    return subject ? subject.state : -Infinity;
-  }
-
-  /**
-   * Schedule the appropriate time to merge deferred values.
-   * @param  {Node} deferred - Must only contain deferred fields.
-   * @param  {Number} clock - Current machine state.
-   * @return {Object|null} - Time until merge mapped to each update.
-   */
-  schedule (deferred, clock) {
-    const updates = {};
-    let scheduled = false;
-
-    /** Track updates by the time until they merge. */
-    for (const [field] of deferred) {
-      const state = deferred.state(field);
-      const distance = state - clock;
-      const update = updates[distance] = updates[distance] || new Node();
-      update[node][field] = deferred.meta(field);
-    }
-
-    /** Schedule each update. */
-    for (const distance of Object.keys(updates)) {
-      const delay = Number(distance);
-      const update = updates[distance];
-
-      this.deferred.add(update);
-      setTimeout(() => {
-        this.merge(update);
-        this.deferred.delete(update);
-      }, delay);
-
-      scheduled = true;
-    }
-
-    if (scheduled) {
-      this.emit('deferred', deferred);
-    }
-
-    return updates;
-  }
-
-  /**
-   * @param  {String} field - The field name to compare.
-   * @param  {Node} node - A node instance to compare against.
-   * @param  {Number} clock - The current machine state.
-   * @return {String} - The relative position of the compared value.
-   */
-  compare (field, node, clock) {
-    const current = this.state(field);
-    const update = node.state(field);
-
-    /** Suspicious update from the future. */
-    if (update > clock) {
-      return 'deferred';
-    }
-
-    /** Newer than our current data. */
-    if (update > current) {
-      return 'update';
-    }
-
-    /** Older than the data we have. */
-    if (update < current) {
-      return 'history';
-    }
-
-    /** They're both the same state. */
-    return 'conflict';
+    return meta ? meta.state : 0;
   }
 
   /**
@@ -227,27 +175,28 @@ export default class Node extends Emitter {
    * @returns {Object} - A collection of changes caused by the merge.
    */
   merge (incoming) {
-
     if (!(incoming instanceof Node)) {
-      incoming = Node.from(incoming);
+      incoming = getIncrementedState(this, incoming);
     }
-
-    const clock = time();
 
     /** Track all mutations. */
     const changes = {
       history: this.new(),
       update: this.new(),
-      deferred: this.new(),
     };
 
     for (const [field] of incoming) {
-      let type = this.compare(field, incoming, clock);
+      let forceUpdate = false;
 
       const current = this.meta(field);
       const update = incoming.meta(field);
+      const state = {
+        incoming: incoming.state(field),
+        current: this.state(field),
+      };
 
-      if (type === 'conflict') {
+      /** Handle conflicts. */
+      if (state.current === state.incoming) {
         const winner = conflict(current, update);
 
         /** No further action needed. */
@@ -255,27 +204,25 @@ export default class Node extends Emitter {
           break;
         }
 
+        /** Replace the current value */
         this.emit('conflict', update, current);
-        type = 'update';
+        forceUpdate = true;
       }
 
-      /** Track the change. */
-      changes[type][node][field] = update;
-
-      /** Immediately apply updates. */
-      if (type === 'update') {
+      if (state.current < state.incoming || forceUpdate) {
 
         /** Track overwritten values. */
         if (current) {
           changes.history[node][field] = current;
         }
 
-        this[node][field] = update;
-      }
-    }
+        changes.update[node][field] = update;
 
-    for (const deferred of incoming.deferred) {
-      this.merge(deferred);
+        /** Immediately apply updates. */
+        this[node][field] = update;
+      } else {
+        changes.history[node][field] = update;
+      }
     }
 
     /** Only emit when there's a change. */
@@ -289,15 +236,12 @@ export default class Node extends Emitter {
       this.emit('update', changes.update);
     }
 
-    this.schedule(changes.deferred, clock);
-
     return changes;
   }
 
   /**
    * Creates an empty instance with the same configuration.
-   * @return {Node} - A new node instance with the same properties
-   * and deferred updates.
+   * @return {Node} - A new node instance with the same properties.
    */
   new () {
     const { uid } = this.meta();
