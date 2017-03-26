@@ -4,9 +4,7 @@ import expect from 'expect';
 import Node from './index';
 
 describe('Node static method', () => {
-
   describe('"from"', () => {
-
     it('turns a POJO into a node', () => {
       const node = Node.from({});
 
@@ -29,11 +27,9 @@ describe('Node static method', () => {
 
       expect(node.state('name')).toBe(1);
     });
-
   });
 
   describe('"source"', () => {
-
     it('creates a node that draws from an object', () => {
       const node = Node.create();
       node.merge({ data: 'intact' });
@@ -42,13 +38,10 @@ describe('Node static method', () => {
       const copy = Node.source(object);
       expect(copy.value('data')).toBe('intact');
     });
-
   });
-
 });
 
 describe('A node', () => {
-
   let node;
 
   beforeEach(() => {
@@ -76,7 +69,6 @@ describe('A node', () => {
 
   /* Not so generic tests */
   describe('uid', () => {
-
     it('exists on creation', () => {
       const { uid } = node.meta();
       expect(uid).toNotBe(undefined);
@@ -94,20 +86,16 @@ describe('A node', () => {
       const { uid } = node.meta();
       expect(uid).toBe('custom');
     });
-
   });
 
   describe('field state lookup', () => {
-
     it('returns 0 when there is no property', () => {
       const state = node.state('no such key');
       expect(state).toBe(0);
     });
-
   });
 
   describe('field metadata lookup', () => {
-
     it('returns null if no values exist', () => {
       const result = node.meta('no such key');
       expect(result).toBe(null);
@@ -118,11 +106,9 @@ describe('A node', () => {
       const result = node.meta('name');
       expect(result).toBeAn(Object);
     });
-
   });
 
   describe('iterator', () => {
-
     it('skips the node metadata field', () => {
       node.merge({ name: 'John' });
       const keys = [...node].map(([key]) => key);
@@ -148,7 +134,6 @@ describe('A node', () => {
   });
 
   describe('property lookup', () => {
-
     it('returns undefined if the key cannot be found', () => {
       const result = node.value('no such key');
       expect(result).toBe(undefined);
@@ -162,12 +147,11 @@ describe('A node', () => {
       const result = node.value('@object');
       expect(result).toBe(undefined);
     });
-
   });
 
   describe('state comparison', () => {
-
     let node, update;
+
     beforeEach(() => {
       node = Node.from({ old: true });
       node.meta('old').state = 1;
@@ -201,11 +185,9 @@ describe('A node', () => {
       const state = node.compare('feature', update);
       expect(state).toBe('update');
     });
-
   });
 
   describe('"clone" call', () => {
-
     it('creates a node with the same ID', () => {
       const { uid } = node.meta();
       const copy = node.new();
@@ -221,7 +203,5 @@ describe('A node', () => {
 
       expect(toObject(copy)).toEqual({});
     });
-
   });
-
 });

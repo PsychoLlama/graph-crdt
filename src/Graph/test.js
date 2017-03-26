@@ -5,9 +5,7 @@ import Graph from '../Graph';
 import Node from '../Node';
 
 describe('Graph static method', () => {
-
   describe('"source"', () => {
-
     it('uses the input as it\'s data source', () => {
       const node = Node.create({ uid: 'member' });
       const graph = Graph.create();
@@ -32,9 +30,7 @@ describe('Graph static method', () => {
       const [key] = [...graph].map(([key]) => key);
       expect(graph.value(key)).toBeA(Node);
     });
-
   });
-
 });
 
 describe('A graph', () => {
@@ -61,7 +57,6 @@ describe('A graph', () => {
   });
 
   describe('iterator', () => {
-
     it('lists all the node indices', () => {
       const first = Node.create({ uid: 'first' });
       const second = Node.create({ uid: 'second' });
@@ -78,7 +73,6 @@ describe('A graph', () => {
         ['second', second],
       ]);
     });
-
   });
 
   describe('"read" call', () => {
@@ -101,11 +95,9 @@ describe('A graph', () => {
       const result = graph.value('potato');
       expect(result).toBe(null);
     });
-
   });
 
   describe('merge', () => {
-
     let node1, node2, subgraph;
 
     beforeEach(() => {
@@ -214,7 +206,7 @@ describe('A graph', () => {
       expect(spy).toHaveBeenCalledWith(history);
     });
 
-    it('should use Graph#new to create deltas', () => {
+    it('uses Graph#new to create deltas', () => {
       const spy = spyOn(graph, 'new').andCall(() => {
         const graph = new Graph();
         graph.viaNew = true;
@@ -240,7 +232,7 @@ describe('A graph', () => {
       node = new Node();
     });
 
-    it('should return a new graph', () => {
+    it('returns a new graph', () => {
       graph.merge({ [node]: node });
 
       const copy = graph.new();
@@ -249,7 +241,5 @@ describe('A graph', () => {
       // Must be a copy.
       expect(copy).toNotBe(graph);
     });
-
   });
-
 });

@@ -4,7 +4,6 @@ import expect, { createSpy } from 'expect';
 import Node from './index';
 
 describe('A node merge', () => {
-
   let node;
 
   beforeEach(() => {
@@ -30,7 +29,6 @@ describe('A node merge', () => {
   });
 
   describe('within operating state bounds', () => {
-
     it('adds all new properties', () => {
       const update = Node.from({ data: true });
       node.merge(update);
@@ -60,9 +58,7 @@ describe('A node merge', () => {
       expect(value).toBeA(Node);
 
       const object = toObject(value);
-      expect(object).toEqual({
-        data: 'yep',
-      });
+      expect(object).toEqual({ data: 'yep' });
     });
 
     it('returns the updates', () => {
@@ -96,11 +92,9 @@ describe('A node merge', () => {
 
       expect(spy.calls.length).toBe(1);
     });
-
   });
 
   describe('in historical state', () => {
-
     let incoming;
 
     beforeEach(() => {
@@ -119,7 +113,6 @@ describe('A node merge', () => {
       node.merge(incoming);
 
       expect(node.value('hello')).toBe('World');
-
     });
 
     it('adds new properties', () => {
@@ -151,9 +144,7 @@ describe('A node merge', () => {
       const { history } = node.merge({ old: false });
 
       const object = toObject(history);
-      expect(object).toEqual({
-        old: true,
-      });
+      expect(object).toEqual({ old: true });
     });
 
     it('emits `history` if updates are outdated', () => {
@@ -172,9 +163,7 @@ describe('A node merge', () => {
       expect(history).toBeA(Node);
 
       const object = toObject(history);
-      expect(object).toEqual({
-        data: 'old state',
-      });
+      expect(object).toEqual({ data: 'old state' });
     });
 
     it('does not emit `history` without stale updates', () => {
@@ -190,7 +179,6 @@ describe('A node merge', () => {
 
       expect(spy).toNotHaveBeenCalled();
     });
-
   });
 
   describe('conflict', () => {
@@ -218,9 +206,7 @@ describe('A node merge', () => {
 
       const { update } = node.merge(conflict);
 
-      expect(toObject(update)).toEqual({
-        value: '5',
-      });
+      expect(toObject(update)).toEqual({ value: '5' });
     });
 
     it('emits `conflict` if it wins', () => {
@@ -246,7 +232,5 @@ describe('A node merge', () => {
 
       expect(spy).toNotHaveBeenCalled();
     });
-
   });
-
 });
