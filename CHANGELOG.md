@@ -2,6 +2,14 @@
 
 `graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
 
+## v0.3.0
+### Changed
+- Replaced wall clocks with logical clocks.
+
+### Removed
+- Deferred updates are gone! They don't make sense with Lamport time.
+- `Node#compare` is gone.
+
 ## v0.2.0
 ### Changed
 - Renamed `Graph#read` to `Graph#value`.
