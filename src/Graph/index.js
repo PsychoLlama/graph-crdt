@@ -94,7 +94,6 @@ export default class Graph extends Emitter {
     const changes = {
       update: this.new(),
       history: this.new(),
-      deferred: this.new(),
     };
 
     for (const [uid, node] of graph) {
@@ -104,16 +103,14 @@ export default class Graph extends Emitter {
         target = this[nodes][uid] = node.new();
       }
 
-      const { update, history, deferred } = target.merge(node);
+      const { update, history } = target.merge(node);
 
       changes.update[nodes][uid] = update;
       changes.history[nodes][uid] = history;
-      changes.deferred[nodes][uid] = deferred;
     }
 
     this.emit('update', changes.update);
     this.emit('history', changes.history);
-    this.emit('deferred', changes.deferred);
 
     return changes;
   }

@@ -214,11 +214,10 @@ describe('A graph', () => {
         return graph;
       });
 
-      const { update, history, deferred } = graph.merge({});
+      const { update, history } = graph.merge({});
 
       expect(update).toContain({ viaNew: true });
       expect(history).toContain({ viaNew: true });
-      expect(deferred).toContain({ viaNew: true });
 
       spy.restore();
     });

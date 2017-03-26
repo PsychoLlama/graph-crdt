@@ -22,7 +22,7 @@ describe('Node static method', () => {
       expect(node.value('birthday')).toBe(date);
     });
 
-    it('sets the state to the current time', () => {
+    it('provides an initial state', () => {
       const node = Node.from({ name: 'Alvin' });
 
       expect(node.state('name')).toBe(1);
