@@ -78,6 +78,29 @@ export default class Graph extends Emitter {
   }
 
   /**
+   * Replays all the changes in the graph as though they occurred
+   * after the events in the target graph.
+   * @param  {Graph} target - Preceding state.
+   * @return {Graph} - A new graph containing the rebased nodes.
+   */
+  rebase (target) {
+    const rebased = this.new();
+
+    rebased.merge(target);
+    rebased.merge(this);
+
+    for (const [id] of this) {
+      const existing = target.value(id);
+
+      if (existing) {
+        rebased[nodes][id] = this.value(id).rebase(existing);
+      }
+    }
+
+    return rebased;
+  }
+
+  /**
    * Merge one graph with another (graph union operation).
    *
    * @param  {Object} graph - The graph to merge with.

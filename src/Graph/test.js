@@ -5,7 +5,7 @@ import Graph from '../Graph';
 import Node from '../Node';
 
 describe('Graph static method', () => {
-  describe('"source"', () => {
+  describe('source()', () => {
     it('uses the input as it\'s data source', () => {
       const node = Node.create({ uid: 'member' });
       const graph = Graph.create();
@@ -56,7 +56,7 @@ describe('A graph', () => {
     expect(string).toContain('intact');
   });
 
-  describe('iterator', () => {
+  describe('iterator()', () => {
     it('lists all the node indices', () => {
       const first = Node.create({ uid: 'first' });
       const second = Node.create({ uid: 'second' });
@@ -75,7 +75,7 @@ describe('A graph', () => {
     });
   });
 
-  describe('"read" call', () => {
+  describe('read()', () => {
     let node;
 
     beforeEach(() => {
@@ -97,7 +97,7 @@ describe('A graph', () => {
     });
   });
 
-  describe('merge', () => {
+  describe('merge()', () => {
     let node1, node2, subgraph;
 
     beforeEach(() => {
@@ -223,7 +223,7 @@ describe('A graph', () => {
     });
   });
 
-  describe('"new" call', () => {
+  describe('new()', () => {
     let node;
 
     beforeEach(() => {
@@ -238,6 +238,69 @@ describe('A graph', () => {
 
       // Must be a copy.
       expect(copy).toNotBe(graph);
+    });
+  });
+
+  describe('rebase()', () => {
+    let target;
+
+    beforeEach(() => {
+      target = new Graph();
+    });
+
+    it('returns a graph', () => {
+      const result = graph.rebase(target);
+
+      expect(result).toBeA(Graph);
+      expect(result).toNotBe(graph);
+      expect(result).toNotBe(target);
+    });
+
+    it('contains all the state of the target', () => {
+      const node = Node.from({ existing: true });
+      target.merge({ [node]: node });
+
+      const result = graph.rebase(target);
+
+      expect([...result]).toEqual([...target]);
+    });
+
+    it('contains all the graph state', () => {
+      const node = Node.from({ existing: true });
+      graph.merge({ [node]: node });
+
+      const result = graph.rebase(target);
+
+      expect([...result]).toEqual([...graph]);
+    });
+
+    it('rebases every node', () => {
+      const node = Node.from({ existing: true });
+      graph.merge({ [node]: node });
+      target.merge({ [node]: node });
+      const spy = spyOn(graph.value(node), 'rebase').andCallThrough();
+
+      graph.rebase(target);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('uses the rebased node in the new graph', () => {
+      const node = new Node();
+
+      const current = node.new();
+      const old = node.new();
+
+      old.merge({ old: true });
+      current.merge({ old: false });
+
+      graph.merge({ [node]: current });
+      target.merge({ [node]: old });
+
+      const result = graph.rebase(target).value(node.meta().uid);
+
+      expect(result.value('old')).toBe(false);
+      expect(result.state('old')).toBe(2);
     });
   });
 });
