@@ -92,6 +92,20 @@ describe('A node merge', () => {
 
       expect(spy.calls.length).toBe(1);
     });
+
+    it('merges other nodes', () => {
+      const weather = new Node({ uid: 'weather' });
+      weather.merge({ condition: 'sunny', temp: 65 });
+
+      const change = new Node({ uid: 'weather' });
+      change.merge(weather);
+      change.merge({ temp: 70 });
+
+      weather.merge(change);
+
+      expect(weather.state('temp')).toBe(2);
+      expect(weather.value('temp')).toBe(70);
+    });
   });
 
   describe('in historical state', () => {

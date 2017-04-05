@@ -201,7 +201,7 @@ export default class Node extends Emitter {
 
         /** No further action needed. */
         if (winner === current) {
-          break;
+          continue;
         }
 
         /** Replace the current value */
