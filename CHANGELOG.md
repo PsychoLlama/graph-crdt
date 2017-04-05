@@ -2,6 +2,10 @@
 
 `graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
 
+## v0.3.1
+### Fixed
+- Prematurely resolved update merges caused by a `break` statement in the merge loop. Caused some updates to never fully merge.
+
 ## v0.3.0
 ### Changed
 - Replaced wall clocks with logical clocks.
