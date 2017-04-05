@@ -167,6 +167,34 @@ export default class Node extends Emitter {
   }
 
   /**
+   * Takes the changes from the current node and plays them after the
+   * changes in the target node.
+   * Similar to git rebase, but without the conflicts.
+   * @param  {Node} target - Preceding state.
+   * @return {Node} - A new, rebased node.
+   */
+  rebase (target) {
+    const rebased = this.new();
+
+    rebased.merge(target);
+    rebased.merge(this);
+
+    // Bump state for older fields.
+    for (const [key] of this) {
+      if (target.state(key) >= this.state(key)) {
+
+        // Avoids mutation of metadata.
+        rebased[node][key] = {
+          ...this.meta(key),
+          state: target.state(key) + 1,
+        };
+      }
+    }
+
+    return rebased;
+  }
+
+  /**
    * Merges an update into the current node.
    *
    * @param  {Node} incoming - The node to merge from.

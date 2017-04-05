@@ -41,7 +41,7 @@ describe('Node static method', () => {
   });
 });
 
-describe('A node', () => {
+describe('Node', () => {
   let node;
 
   beforeEach(() => {
@@ -88,14 +88,14 @@ describe('A node', () => {
     });
   });
 
-  describe('field state lookup', () => {
+  describe('state()', () => {
     it('returns 0 when there is no property', () => {
       const state = node.state('no such key');
       expect(state).toBe(0);
     });
   });
 
-  describe('field metadata lookup', () => {
+  describe('meta()', () => {
     it('returns null if no values exist', () => {
       const result = node.meta('no such key');
       expect(result).toBe(null);
@@ -108,7 +108,7 @@ describe('A node', () => {
     });
   });
 
-  describe('iterator', () => {
+  describe('Symbol.iterator()', () => {
     it('skips the node metadata field', () => {
       node.merge({ name: 'John' });
       const keys = [...node].map(([key]) => key);
@@ -130,10 +130,9 @@ describe('A node', () => {
         ['tier', 'premium'],
       ]);
     });
-
   });
 
-  describe('property lookup', () => {
+  describe('value()', () => {
     it('returns undefined if the key cannot be found', () => {
       const result = node.value('no such key');
       expect(result).toBe(undefined);
@@ -149,7 +148,7 @@ describe('A node', () => {
     });
   });
 
-  describe('"new" call', () => {
+  describe('new()', () => {
     it('creates a node with the same ID', () => {
       const { uid } = node.meta();
       const copy = node.new();
@@ -162,6 +161,79 @@ describe('A node', () => {
       const copy = node.new();
 
       expect(toObject(copy)).toEqual({});
+    });
+  });
+
+  describe('rebase()', () => {
+    let target;
+
+    beforeEach(() => {
+      target = new Node();
+    });
+
+    it('is a function', () => {
+      expect(node.rebase).toBeA(Function);
+    });
+
+    it('returns a new node', () => {
+      const result = node.rebase();
+
+      expect(result).toBeA(Node);
+      expect(result).toNotBe(node);
+    });
+
+    it('returns the same node id', () => {
+      const { uid } = node.rebase(target).meta();
+
+      expect(uid).toBe(node.meta().uid);
+    });
+
+    it('does not change state if the node is empty', () => {
+      node.merge({ initial: true });
+      const result = node.rebase(target);
+
+      expect(result.state('initial')).toBe(1);
+    });
+
+    it('does not change state if the fields do not overlap', () => {
+      node.merge({ initial: true });
+      target.merge({ different: true });
+      target.meta('different').state = 2001;
+      const result = node.rebase(target);
+
+      expect(result.state('initial')).toBe(1);
+    });
+
+    it('increments the state for overlapping fields', () => {
+      node.merge({ existing: 'should replace' });
+      target.merge({ existing: 'replace me', different: true });
+      const result = node.rebase(target);
+
+      expect(result.state('existing')).toBe(2);
+      expect(result.state('different')).toBe(1);
+    });
+
+    it('does not mutate field metadata', () => {
+      node.merge({ old: false });
+      target.merge({ old: true });
+
+      const result = node.rebase(target);
+
+      expect(result.meta('old'))
+        .toNotBe(node.meta('old'))
+        .toNotBe(target.meta('old'))
+        .toNotContain({ state: 1 });
+    });
+
+    it('does not change fields which are already greater', () => {
+      const state = 20000;
+      node.merge({ old: false });
+      node.meta('old').state = state;
+      target.merge({ old: true });
+
+      const result = node.rebase(target);
+
+      expect(result.state('old')).toBe(state);
     });
   });
 });
