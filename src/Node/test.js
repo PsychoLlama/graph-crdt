@@ -171,10 +171,6 @@ describe('Node', () => {
       target = new Node();
     });
 
-    it('is a function', () => {
-      expect(node.rebase).toBeA(Function);
-    });
-
     it('returns a new node', () => {
       const result = node.rebase();
 
@@ -234,6 +230,67 @@ describe('Node', () => {
       const result = node.rebase(target);
 
       expect(result.state('old')).toBe(state);
+    });
+  });
+
+  describe('overlap()', () => {
+    let target;
+
+    beforeEach(() => {
+      target = new Node();
+    });
+
+    it('returns a new node', () => {
+      const result = node.overlap(target);
+
+      expect(result).toBeA(Node);
+      expect(result).toNotBe(node);
+      expect(result).toNotBe(target);
+    });
+
+    it('has the same id', () => {
+      const { uid } = node.overlap(target).meta();
+
+      expect(uid).toBe(node.meta().uid);
+    });
+
+    it('has no fields if the target is empty', () => {
+      node.merge({ existing: true });
+      const result = node.overlap(target);
+
+      expect([...result]).toEqual([]);
+    });
+
+    it('ignores additional properties in the target', () => {
+      node.merge({ existing: true });
+      target.merge({ existing: true, different: true });
+      const result = node.overlap(target);
+
+      expect([...result]).toEqual([...node]);
+    });
+
+    it('ignores additional properties in the source', () => {
+      node.merge({ shared: true, extra: true });
+      target.merge({ shared: true });
+      const result = node.overlap(target);
+
+      expect([...result]).toEqual([...target]);
+    });
+
+    it('is identical when compared against itself', () => {
+      node.merge({ exhausted: 'field name creativity' });
+      const result = node.overlap(node);
+
+      expect([...result]).toEqual([...node]);
+    });
+
+    it('contains the values from the source node', () => {
+      node.merge({ shared: 'node value' });
+      target.merge({ shared: 'target value' });
+
+      const result = node.overlap(target);
+
+      expect(result.meta('shared')).toBe(node.meta('shared'));
     });
   });
 });

@@ -195,6 +195,23 @@ export default class Node extends Emitter {
   }
 
   /**
+   * Calculates the intersection between two nodes.
+   * @param  {Node} target - Any other node.
+   * @return {Node} - A collection of fields common to both nodes.
+   */
+  overlap (target) {
+    const shared = this.new();
+
+    for (const [field] of this) {
+      if (this.state(field) && target.state(field)) {
+        shared[node][field] = this.meta(field);
+      }
+    }
+
+    return shared;
+  }
+
+  /**
    * Merges an update into the current node.
    *
    * @param  {Node} incoming - The node to merge from.
