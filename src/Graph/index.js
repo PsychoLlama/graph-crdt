@@ -101,6 +101,30 @@ export default class Graph extends Emitter {
   }
 
   /**
+   * Figures out what fields are common to both graphs.
+   * @param  {Graph} target - Any other graph.
+   * @return {Graph} - The shared properties between both graphs.
+   */
+  overlap (target) {
+    const shared = this.new();
+
+    for (const [key] of this) {
+      if (this.value(key) && target.value(key)) {
+
+        // Calculate the node overlap.
+        const nodeSource = this.value(key);
+        const nodeTarget = target.value(key);
+        const overlap = nodeSource.overlap(nodeTarget);
+
+        // Merge it into the new graph.
+        shared.merge({ [key]: overlap });
+      }
+    }
+
+    return shared;
+  }
+
+  /**
    * Merge one graph with another (graph union operation).
    *
    * @param  {Object} graph - The graph to merge with.

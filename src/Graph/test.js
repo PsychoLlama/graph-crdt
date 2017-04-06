@@ -303,4 +303,80 @@ describe('A graph', () => {
       expect(result.state('old')).toBe(2);
     });
   });
+
+  describe('overlap()', () => {
+    let target;
+
+    beforeEach(() => {
+      target = new Graph();
+    });
+
+    it('returns a new graph', () => {
+      const result = graph.overlap(target);
+
+      expect(result).toBeA(Graph);
+      expect(result).toNotBe(graph);
+      expect(result).toNotBe(target);
+    });
+
+    it('contains no nodes if the target is empty', () => {
+      const node = new Node();
+      graph.merge({ [node]: node });
+      const result = graph.overlap(target);
+
+      expect([...result]).toEqual([]);
+    });
+
+    it('contains no nodes if the source is empty', () => {
+      const node = new Node();
+      target.merge({ [node]: node });
+      const result = graph.overlap(target);
+
+      expect([...result]).toEqual([]);
+    });
+
+    it('contains nodes shared by both graphs', () => {
+      const node1 = new Node();
+      const node2 = new Node({ uid: String(node1) });
+
+      graph.merge({ [node1]: node1 });
+      target.merge({ [node2]: node2 });
+
+      const result = graph.overlap(target);
+
+      expect([...result]).toEqual([...graph]);
+    });
+
+    it('only contains overlapping node fields', () => {
+      const node1 = new Node({ uid: 'tweets' });
+      const node2 = new Node({ uid: 'tweets' });
+
+      node1.merge({ node1: true, shared: true });
+      node2.merge({ node2: true, shared: true });
+
+      graph.merge({ [node1]: node1 });
+      target.merge({ [node2]: node2 });
+
+      const result = graph.overlap(target);
+
+      const { uid } = node1.meta();
+      expect([...result.value(uid)]).toEqual([['shared', true]]);
+    });
+
+    it('uses the values from the source graph', () => {
+      const node1 = new Node({ uid: 'node' });
+      const node2 = new Node({ uid: 'node' });
+
+      node1.merge({ shared: 'source' });
+      node2.merge({ shared: 'target' });
+
+      graph.merge({ [node1]: node1 });
+      target.merge({ [node2]: node2 });
+
+      const result = graph.overlap(target);
+
+      const { uid } = node1.meta();
+      expect(result.value(uid).value('shared')).toBe('source');
+    });
+  });
 });
