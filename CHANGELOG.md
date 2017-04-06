@@ -2,9 +2,14 @@
 
 `graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
 
+## v0.5.0
+### Added
+- New `Node#overlap` method.
+- New `Graph#overlap` method.
+
 ## v0.4.0
 ### Added
-- new `Node#rebase` method.
+- New `Node#rebase` method.
 - New `Graph#rebase` method.
 
 ## v0.3.1
