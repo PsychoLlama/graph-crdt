@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 import { toObject } from '../test-helpers';
-import expect from 'expect';
+import expect, { createSpy } from 'expect';
 import Node from './index';
 
 describe('Node static method', () => {
@@ -161,6 +161,93 @@ describe('Node', () => {
       const copy = node.new();
 
       expect(toObject(copy)).toEqual({});
+    });
+  });
+
+  describe('setMetadata()', () => {
+    it('updates the field metadata', () => {
+      const update = {
+        value: 'jack',
+        lastChanged: 1491531671735,
+      };
+
+      node.setMetadata('username', update);
+
+      expect(node.meta('username')).toContain(update);
+    });
+
+    it('sets the state', () => {
+      const update = {
+        value: 6.28,
+        logs: 'address',
+      };
+
+      node.setMetadata('pressure', update);
+
+      expect(node.state('pressure')).toBe(1);
+    });
+
+    it('bumps the state if the field existed before', () => {
+      node.merge({ 'temp': 31 });
+
+      const update = {
+        value: 30,
+        encoding: 'KELVIN',
+      };
+
+      node.setMetadata('temp', update);
+
+      expect(node.state('temp')).toBe(2);
+    });
+
+    it('ignores state if specified in the metadata', () => {
+      node.setMetadata('dangerous', { state: 6 });
+
+      expect(node.state('dangerous')).toBe(1);
+    });
+
+    it('does not mutate the metadata object', () => {
+      const update = { state: 5 };
+
+      node.setMetadata('field', update);
+
+      expect(update.state).toBe(5);
+      expect(node.meta('field')).toNotBe(update);
+    });
+
+    it('returns the merge delta', () => {
+      const result = node.setMetadata('speed', { value: 150 });
+
+      expect(result.update).toBeA(Node);
+      expect(result.history).toBeA(Node);
+    });
+
+    it('emits "update"', () => {
+      const spy = createSpy();
+      node.on('update', spy);
+
+      node.setMetadata('field', { value: 'update!' });
+
+      expect(spy).toHaveBeenCalled();
+      const [update] = spy.calls[0].arguments;
+
+      expect(update).toBeA(Node);
+      expect(update.meta().uid).toBe(node.meta().uid);
+      expect([...update]).toEqual([['field', 'update!']]);
+    });
+
+    it('emits "history"', () => {
+      const spy = createSpy();
+      node.on('history', spy);
+
+      node.merge({ field: 'history' });
+      node.setMetadata('field', 'update');
+
+      expect(spy).toHaveBeenCalled();
+      const [update] = spy.calls[0].arguments;
+
+      expect(update).toBeA(Node);
+      expect([...update]).toEqual([['field', 'history']]);
     });
   });
 

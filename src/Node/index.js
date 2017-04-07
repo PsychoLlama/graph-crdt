@@ -167,6 +167,21 @@ export default class Node extends Emitter {
   }
 
   /**
+   * Sets metadata for a field, bumping the current state.
+   * @param  {String} field - A field to update.
+   * @param  {Object} metadata - What metadata the field should contain.
+   * @return {Object} - The metadata object (not the same one given).
+   */
+  setMetadata (field, metadata) {
+    const state = this.state(field) + 1;
+
+    const update = this.new();
+    update[node][field] = { ...metadata, state };
+
+    return this.merge(update);
+  }
+
+  /**
    * Takes the changes from the current node and plays them after the
    * changes in the target node.
    * Similar to git rebase, but without the conflicts.
