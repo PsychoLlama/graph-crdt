@@ -2,6 +2,10 @@
 
 `graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
 
+## v0.6.0
+### Added
+- New `Node#setMetadata` method.
+
 ## v0.5.0
 ### Added
 - New `Node#overlap` method.

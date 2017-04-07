@@ -43,7 +43,9 @@ This library opts for the latter, implementing a delta graph CvRDT. However, as 
 
 ## Roadmap
 1. Node field tombstones.
-2. Immutable metadata API.
+2. Graph member tombstones.
+3. Custom conflict resolvers.
+4. A new data structure (this one is a surprise).
 
 ## Disclaimer
 Although I have working experience with decentralized systems (at [GunDB](//gundb.io)), I'm still a n00b. This library is my best understanding of CvRDTs and how they operate. I'm open to most suggestions.
