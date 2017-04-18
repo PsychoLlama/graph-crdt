@@ -5,10 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "build": "babel src/ -d dist/ --ignore **/*spec.js",
+    "preversion": "npm run build",
+    "build": "npm run build:js && npm run build:doc",
+    "build:js": "babel src/ -d dist/ --ignore **/*spec.js",
+    "build:doc": "jsdoc --configure jsdoc.config.json",
     "test": "mocha 'src/**/*test.js' --opts ./mocha.opts",
-    "lint": "eslint src/",
-    "doc": "jsdoc --configure jsdoc.config.json"
+    "lint": "eslint src/"
   },
   "keywords": [
     "graph",
@@ -18,7 +20,7 @@
     "distributed",
     "observable"
   ],
-  "author": "Jesse Gibson <jesse@gundb.io> (http://techllama.com)",
+  "author": "Jesse Gibson <Jesse_Gibson@me.com> (http://psychollama.io/)",
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-eslint": "^7.1.1",
@@ -39,9 +41,6 @@
     "babel-runtime": "^6.20.0",
     "eventemitter3": "^2.0.1",
     "uuid": "^3.0.0"
-  },
-  "directories": {
-    "doc": "docs"
   },
   "repository": {
     "type": "git",

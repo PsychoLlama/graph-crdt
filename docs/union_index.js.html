@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>union/index.js - Postman Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="graph-crdt.module_Graph-Graph.html">Graph</a></li><li><a href="graph-crdt.module_Node-Node.html">Node</a></li></ul><h3>Modules</h3><ul><li><a href="graph-crdt.module_Graph.html">Graph</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Graph.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#value">value</a></li></ul></li><li><a href="graph-crdt.module_Node.html">Node</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Node.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.from">from</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#meta">meta</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#new">new</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#setMetadata">setMetadata</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#state">state</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#value">value</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">union/index.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Utilities for deterministically merging node attributes.
+ *
+ * @private
+ * @module graph-crdt/src/union
+ */
+
+/**
+ * Deterministically resolves merge conflicts
+ * on JSON-compatible data.
+ *
+ * @param  {Object} field1 - Current state field metadata.
+ * @param  {Object} field2 - Update field metadata.
+ * @returns {Object} - The greater value, or if they're
+ * equal, the current state.
+ */
+export function conflict (field1, field2) {
+
+  /** Turn the values into comparable strings. */
+  const string = {
+    current: JSON.stringify(field1.value),
+    update: JSON.stringify(field2.value),
+  };
+
+  /** Are the values equal? */
+  const equal = (string.current === string.update);
+
+  /** Is our current value greater? */
+  const greater = (string.current > string.update);
+
+  /** Return the winning value. */
+  return (equal || greater) ? field1 : field2;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated at Mon Apr 17 2017 18:41:45 GMT-0600 (MDT)
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

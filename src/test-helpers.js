@@ -1,6 +1,6 @@
 /**
  * Turns an entries iterable into an object.
- * @method toObject
+ * @private
  * @param  {Mixed} iterable - Anything with a Symbol.iterator.
  * @return {Object} - Iterated entry entries spread onto a new object.
  */

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Graph/index.js - Postman Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="graph-crdt.module_Graph-Graph.html">Graph</a></li><li><a href="graph-crdt.module_Node-Node.html">Node</a></li></ul><h3>Modules</h3><ul><li><a href="graph-crdt.module_Graph.html">Graph</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Graph.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#value">value</a></li></ul></li><li><a href="graph-crdt.module_Node.html">Node</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Node.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.from">from</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#meta">meta</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#new">new</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#setMetadata">setMetadata</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#state">state</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#value">value</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Graph/index.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module graph-crdt.Graph
+ */
+
+import Emitter from 'eventemitter3';
+import Node from '../Node';
+
+const nodes = Symbol('graph node container');
+
+/**
+ * Container and interface for groups of nodes.
+ *
+ * @class Graph
+ */
+export default class Graph extends Emitter {
+
+  /**
+   * Instantiates a graph without needing `new`.
+   *
+   * @returns {Graph} - A graph instance.
+   */
+  static create () {
+    return new Graph();
+  }
+
+  /**
+   * Imports a format compliant graph into a new one. It expects
+   * nested nodes to use the node metadata format. Useful for
+   * sending and importing graphs over the network.
+   *
+   * @param  {Object} object - The raw graph object.
+   * @returns {Graph} - A new graph instance that consumes
+   * the imported data.
+   */
+  static source (object) {
+
+    // Create a new graph
+    const graph = Graph.create();
+
+    // For each node...
+    Object.keys(object).forEach((key) => {
+
+      let node = object[key];
+
+      // Make sure it's a node.
+      if (!(node instanceof Node)) {
+        node = Node.source(node);
+      }
+
+      // Get it's unique ID.
+      const { uid } = node.meta();
+
+      // Add it to the new graph.
+      graph[nodes][uid] = node;
+    });
+
+    return graph;
+  }
+
+  constructor () {
+    super();
+
+    this[nodes] = {};
+  }
+
+  /**
+   * Return the unmodified value of a node lookup.
+   *
+   * @param  {String} key - The name/uid of the node.
+   * @returns {Node|null} - The node if found, otherwise `null`.
+   */
+  value (key) {
+    return this[nodes][key] || null;
+  }
+
+  new () {
+    return new Graph();
+  }
+
+  /**
+   * Replays all the changes in the graph as though they occurred
+   * after the events in the target graph.
+   * @param  {Graph} target - Preceding state.
+   * @return {Graph} - A new graph containing the rebased nodes.
+   */
+  rebase (target) {
+    const rebased = this.new();
+
+    rebased.merge(target);
+    rebased.merge(this);
+
+    for (const [id] of this) {
+      const existing = target.value(id);
+
+      if (existing) {
+        rebased[nodes][id] = this.value(id).rebase(existing);
+      }
+    }
+
+    return rebased;
+  }
+
+  /**
+   * Figures out what fields are common to both graphs.
+   * @param  {Graph} target - Any other graph.
+   * @return {Graph} - The shared properties between both graphs.
+   */
+  overlap (target) {
+    const shared = this.new();
+
+    for (const [key] of this) {
+      if (this.value(key) &amp;&amp; target.value(key)) {
+
+        // Calculate the node overlap.
+        const nodeSource = this.value(key);
+        const nodeTarget = target.value(key);
+        const overlap = nodeSource.overlap(nodeTarget);
+
+        // Merge it into the new graph.
+        shared.merge({ [key]: overlap });
+      }
+    }
+
+    return shared;
+  }
+
+  /**
+   * Merge one graph with another (graph union operation).
+   *
+   * @param  {Object} graph - The graph to merge with.
+   * Items must be enumerable, and cannot be inherited from prototypes.
+   * @returns {Graph} - The `this` context.
+   */
+  merge (graph) {
+
+    /** Ensure it's a graph. */
+    if (!(graph instanceof Graph)) {
+      graph = Graph.source(graph);
+    }
+
+    const changes = {
+      update: this.new(),
+      history: this.new(),
+    };
+
+    for (const [uid, node] of graph) {
+      let target = this.value(uid);
+
+      if (!target) {
+        target = this[nodes][uid] = node.new();
+      }
+
+      const { update, history } = target.merge(node);
+
+      changes.update[nodes][uid] = update;
+      changes.history[nodes][uid] = history;
+    }
+
+    this.emit('update', changes.update);
+    this.emit('history', changes.history);
+
+    return changes;
+  }
+
+  /**
+   * Iterates over every node in the graph.
+   * @return {Array} - Every yielded value is a key/value pair.
+   */
+  * [Symbol.iterator] () {
+    const object = this[nodes];
+
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        const value = this.value(key);
+        yield [key, value];
+      }
+    }
+  }
+
+  /* Coercion interfaces */
+
+  /**
+   * Used to serialize a graph (JSON.stringify calls this method).
+   *
+   * @private
+   * @returns {Object} - The hidden collection of nodes.
+   */
+  toJSON () {
+    return this[nodes];
+  }
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated at Mon Apr 17 2017 18:41:45 GMT-0600 (MDT)
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
