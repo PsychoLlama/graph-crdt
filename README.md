@@ -41,6 +41,9 @@ This library opts for the latter, implementing a delta graph CvRDT. However, as 
 - Delta emission on `Node` and `Graph` unions.
 - Time travel (track and selectively apply deltas).
 
+## [Documentation](https://psychollama.github.io/graph-crdt/)
+All the API docs [can be found here](https://psychollama.github.io/graph-crdt/).
+
 ## Roadmap
 1. Node field tombstones.
 2. Graph member tombstones.
