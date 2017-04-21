@@ -2,6 +2,10 @@
 
 `graph-crdt` uses [this changelog style](http://keepachangelog.com/en/0.3.0/), and versions after `0.1.0` follow [semver](http://semver.org/).
 
+## v0.7.0
+### Added
+- New `Node#snapshot` method.
+
 ## v0.6.2
 ### Fixed
 - Removed `Graph` and `Node` globals.

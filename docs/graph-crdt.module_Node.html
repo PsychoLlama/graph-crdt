@@ -23,7 +23,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="graph-crdt.module_Graph-Graph.html">Graph</a></li><li><a href="graph-crdt.module_Node-Node.html">Node</a></li></ul><h3>Modules</h3><ul><li><a href="graph-crdt.module_Graph.html">Graph</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Graph.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#value">value</a></li></ul></li><li><a href="graph-crdt.module_Node.html">Node</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Node.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.from">from</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#meta">meta</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#new">new</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#setMetadata">setMetadata</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#state">state</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#value">value</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="graph-crdt.module_Graph-Graph.html">Graph</a></li><li><a href="graph-crdt.module_Node-Node.html">Node</a></li></ul><h3>Modules</h3><ul><li><a href="graph-crdt.module_Graph.html">Graph</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Graph.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Graph.html#value">value</a></li></ul></li><li><a href="graph-crdt.module_Node.html">Node</a><ul class='methods'><li data-type='method'><a href="graph-crdt.module_Node.html#.create">create</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.from">from</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#.source">source</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#merge">merge</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#meta">meta</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#new">new</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#overlap">overlap</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#rebase">rebase</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#setMetadata">setMetadata</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#snapshot">snapshot</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#state">state</a></li><li data-type='method'><a href="graph-crdt.module_Node.html#value">value</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -1588,6 +1588,110 @@ Similar to git rebase, but without the conflicts.
 
     
 
+    <h4 class="name" id="snapshot"><span class="type-signature"></span>snapshot<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Takes a snapshot of the current state.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Node_index.js.html">Node/index.js</a>, <a href="Node_index.js.html#line317">line 317</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - Every key and value (currently) in the node.
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="state"><span class="type-signature"></span>state<span class="signature">(field)</span><span class="type-signature"> &rarr; {Number}</span></h4>
 
     
@@ -1910,7 +2014,7 @@ on reserved fields (like "@object").
 <br class="clear">
 
 <footer>
-    Documentation generated at Mon Apr 17 2017 18:41:45 GMT-0600 (MDT)
+    Documentation generated at Fri Apr 21 2017 17:51:20 GMT-0600 (MDT)
 </footer>
 
 <script>prettyPrint();</script>
