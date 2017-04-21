@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-import { toObject } from '../test-helpers';
 import expect, { createSpy } from 'expect';
 import Node from './index';
 
@@ -160,7 +159,7 @@ describe('Node', () => {
       node.merge({ original: true });
       const copy = node.new();
 
-      expect(toObject(copy)).toEqual({});
+      expect(copy.snapshot()).toEqual({});
     });
   });
 
@@ -378,6 +377,23 @@ describe('Node', () => {
       const result = node.overlap(target);
 
       expect(result.meta('shared')).toBe(node.meta('shared'));
+    });
+  });
+
+  describe('snapshot()', () => {
+    it('returns an object', () => {
+      const result = node.snapshot();
+
+      expect(result).toBeAn(Object);
+    });
+
+    it('contains every key/value pair in the node', () => {
+      const state = { name: 'Living Room Lamp', state: 'ON' };
+      node.merge(state);
+
+      const result = node.snapshot();
+
+      expect(result).toEqual(state);
     });
   });
 });

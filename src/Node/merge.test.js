@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-import { toObject } from '../test-helpers';
 import expect, { createSpy } from 'expect';
 import Node from './index';
 
@@ -57,7 +56,7 @@ describe('A node merge', () => {
       const [value] = spy.calls[0].arguments;
       expect(value).toBeA(Node);
 
-      const object = toObject(value);
+      const object = value.snapshot();
       expect(object).toEqual({ data: 'yep' });
     });
 
@@ -65,7 +64,7 @@ describe('A node merge', () => {
       const { update } = node.merge({ data: 'yep' });
       expect(update).toBeA(Node);
 
-      const object = toObject(update);
+      const object = update.snapshot();
       expect(object).toEqual({
         data: 'yep',
       });
@@ -148,7 +147,7 @@ describe('A node merge', () => {
       const { history } = node.merge(incoming);
 
       expect(history).toBeA(Node);
-      const object = toObject(history);
+      const object = history.snapshot();
 
       expect(object).toEqual({ old: true });
     });
@@ -157,7 +156,7 @@ describe('A node merge', () => {
       node.merge({ old: true });
       const { history } = node.merge({ old: false });
 
-      const object = toObject(history);
+      const object = history.snapshot();
       expect(object).toEqual({ old: true });
     });
 
@@ -176,7 +175,7 @@ describe('A node merge', () => {
 
       expect(history).toBeA(Node);
 
-      const object = toObject(history);
+      const object = history.snapshot();
       expect(object).toEqual({ data: 'old state' });
     });
 
@@ -211,8 +210,8 @@ describe('A node merge', () => {
     it('is ignored if it loses', () => {
       const { update, history } = node.merge(conflict);
 
-      expect(toObject(update)).toEqual({});
-      expect(toObject(history)).toEqual({});
+      expect(update.snapshot()).toEqual({});
+      expect(history.snapshot()).toEqual({});
     });
 
     it('triggers an update if it wins', () => {
@@ -220,7 +219,7 @@ describe('A node merge', () => {
 
       const { update } = node.merge(conflict);
 
-      expect(toObject(update)).toEqual({ value: '5' });
+      expect(update.snapshot()).toEqual({ value: '5' });
     });
 
     it('emits `conflict` if it wins', () => {

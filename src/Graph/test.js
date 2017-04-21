@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 import expect, { spyOn, createSpy } from 'expect';
-import { toObject } from '../test-helpers';
 import Graph from '../Graph';
 import Node from '../Node';
 
@@ -121,7 +120,7 @@ describe('A graph', () => {
       });
 
       const result = graph.value(uid);
-      expect(toObject(result)).toEqual(toObject(node1));
+      expect(result.snapshot()).toEqual(node1.snapshot());
     });
 
     it('adds all the items in the subgraph', () => {
@@ -152,7 +151,7 @@ describe('A graph', () => {
       });
 
       const copied = graph.value(uid);
-      expect(toObject(copied)).toEqual({ isNode1: true });
+      expect(copied.snapshot()).toEqual({ isNode1: true });
       expect(copied).toNotBe(node1);
     });
 
@@ -161,10 +160,9 @@ describe('A graph', () => {
         [node2]: node2,
       });
 
-      const object = toObject(update);
-      expect(object).toEqual({
-        [node2]: node2,
-      });
+      expect([...update]).toEqual([
+        [String(node2), node2],
+      ]);
     });
 
     it('emits an `update` delta graph on change', () => {
@@ -191,7 +189,7 @@ describe('A graph', () => {
 
       const node = history.value('existing');
       expect(node).toBeA(Node);
-      expect(toObject(node)).toEqual({ old: true });
+      expect(node.snapshot()).toEqual({ old: true });
     });
 
     it('emits a `history` graph delta', () => {

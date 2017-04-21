@@ -311,6 +311,20 @@ export default class Node extends Emitter {
   }
 
   /**
+   * Takes a snapshot of the current state.
+   * @return {Object} - Every key and value (currently) in the node.
+   */
+  snapshot () {
+    const object = {};
+
+    for (const [key, value] of this) {
+      object[key] = value;
+    }
+
+    return object;
+  }
+
+  /**
    * Iterates over the node keys & values, ignoring metadata.
    * @return {Array} - Each value yielded is a [key, value] pair.
    */
