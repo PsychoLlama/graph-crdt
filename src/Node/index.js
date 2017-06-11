@@ -83,64 +83,32 @@ export default class Node extends Entity {
       incoming = getIncrementedState(this, incoming);
     }
 
-    // Track all mutations.
-    const changes = {
-      history: this.new(),
-      update: this.new(),
-    };
+    // Figure out what's different.
+    const delta = this.delta(incoming);
 
-    for (const [field] of incoming) {
-      let forceUpdate = false;
+    // Apply every update.
+    for (const [field] of delta.update) {
+      const metadata = delta.update.meta(field);
 
-      const current = this.meta(field);
-      const update = incoming.meta(field);
-      const state = {
-        incoming: incoming.state(field),
-        current: this.state(field),
-      };
-
-      // Handle conflicts.
-      if (state.current === state.incoming) {
-        const winner = conflict(current, update);
-
-        // No further action needed.
-        if (winner === current) {
-          continue;
-        }
-
-        // Replace the current value.
-        this.emit('conflict', update, current);
-        forceUpdate = true;
+      if (this.state(field) === incoming.state(field)) {
+        this.emit('conflict', metadata, this.meta(field));
       }
 
-      if (state.current < state.incoming || forceUpdate) {
-
-        // Track overwritten values.
-        if (current) {
-          changes.history[Node.object][field] = current;
-        }
-
-        changes.update[Node.object][field] = update;
-
-        // Immediately apply updates.
-        this[Node.object][field] = update;
-      } else {
-        changes.history[Node.object][field] = update;
-      }
+      // Apply the update.
+      this[Node.object][field] = metadata;
     }
 
-    // Only emit when there's a change.
-    const changed = [...changes.update].length > 0;
-    const overwritten = [...changes.history].length > 0;
-
-    if (overwritten) {
-      this.emit('history', changes.history);
-    }
-    if (changed) {
-      this.emit('update', changes.update);
+    // Emit changes.
+    if ([...delta.history].length) {
+      this.emit('history', delta.history);
     }
 
-    return changes;
+    // Emit overwritten values.
+    if ([...delta.update].length) {
+      this.emit('update', delta.update);
+    }
+
+    return delta;
   }
 
   /**

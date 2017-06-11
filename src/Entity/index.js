@@ -1,6 +1,8 @@
 import Emitter from 'eventemitter3';
 import uuid from 'uuid/v4';
 
+import { conflict } from '../union';
+
 /**
  * Defines a generic interface to the data structure.
  * Does not implement merge logic.
@@ -55,13 +57,7 @@ export default class Entity extends Emitter {
    * @returns {Object|null} - If metadata is found, it returns the object.
    * Otherwise `null` is given.
    */
-  meta (field) {
-
-    if (field === undefined) {
-
-      // Returns the object metadata if no field is specified.
-      return this[Entity.object][Entity.metadata];
-    }
+  meta (field = Entity.metadata) {
 
     // Returns the field given, and null if metadata isn't found.
     return this[Entity.object][field] || null;
@@ -177,6 +173,70 @@ export default class Entity extends Emitter {
     }
 
     return shared;
+  }
+
+  /**
+   * Creates a new instance of itself, keeping the same configuration.
+   * @return {Entity} - Contains no fields.
+   */
+  new () {
+    const { uid } = this.meta();
+
+    return new Entity({ uid });
+  }
+
+  /**
+   * Calculates the delta between two entities.
+   * @param  {Entity} update - Any other entity.
+   * @return {Object} delta - The collection of changes.
+   * @return {Entity} update - Every new and updated field.
+   * @return {Object} history - State which would be overwritten by a merge.
+   */
+  delta (update) {
+    const data = update[Entity.object];
+    const delta = { update: this.new(), history: this.new() };
+
+    Object.keys(data).forEach((field) => {
+
+      // Metadata is constant.
+      if (field === Entity.metadata) {
+        return;
+      }
+
+      const metadata = data[field];
+      const state = { current: this.state(field), update: update.state(field) };
+
+      // The update has more recent data.
+      if (state.update > state.current) {
+        delta.update[Entity.object][field] = metadata;
+
+        // Another value will be overwritten.
+        if (state.current) {
+          delta.history[Entity.object][field] = this.meta(field);
+        }
+
+        return;
+      }
+
+      // The current state is more recent.
+      if (state.update < state.current) {
+        delta.history[Entity.object][field] = metadata;
+        return;
+      }
+
+      // Both states are equal. Deterministically resolve the conflict.
+      const current = this.meta(field);
+      const winner = conflict(current, metadata);
+
+      // Only update if the current value lost the conflict.
+      if (winner !== current) {
+        const loser = winner === current ? metadata : current;
+        delta.update[Entity.object][field] = winner;
+        delta.history[Entity.object][field] = loser;
+      }
+    });
+
+    return delta;
   }
 
 
