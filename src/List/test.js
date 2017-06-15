@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 import expect from 'expect';
 
-import Entity from '../Entity';
 import List from './index';
 
 describe('List', () => {
@@ -29,18 +28,23 @@ describe('List', () => {
       expect(list.value(index)).toBe('item');
     });
 
-    it('sets the previous index', () => {
+    it('links to the preceeding item', () => {
       const first = list.append('value');
       const second = list.append('value');
 
       expect(list.meta(second).prev).toBe(first);
     });
 
+    it('sets the preceeding item to null if it is first', () => {
+      const index = list.append('value');
+
+      expect(list.meta(index).prev).toBe(null);
+    });
+
     it('sets the index for the last value', () => {
       const index = list.append(10);
-      const last = list.value(List.last);
 
-      expect(last).toBe(index);
+      expect(list.meta(index).next).toBe(null);
     });
   });
 
