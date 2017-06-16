@@ -39,10 +39,20 @@ export default class List extends Entity {
       first: update.meta(List.first) && this.meta(List.first) &&
         update.state(List.first) === this.state(List.first) &&
         update.value(List.first) !== this.value(List.first),
+
+      last: update.meta(List.last) && this.meta(List.last) &&
+        update.state(List.last) === this.state(List.last) &&
+        update.value(List.last) !== this.value(List.last),
     };
 
     if (hasConflict.first) {
       merge.first(this, update, delta);
+    }
+
+    // No need to doubly merge the list.
+    const singleItem = update.value(List.first) === update.value(List.last);
+    if (hasConflict.last && !singleItem) {
+      merge.last(this, update, delta);
     }
 
     keys(delta.update).forEach((field) => {
@@ -133,7 +143,7 @@ ignored[List.last] = true;
  * @param  {Object} delta - An object with an update and history field.
  * @return {undefined}
  */
-merge.first = function (current, update, delta) {
+merge.first = (current, update, delta) => {
   const meta = {
     current: current.meta(List.first),
     update: update.meta(List.first),
@@ -154,5 +164,39 @@ merge.first = function (current, update, delta) {
   delta.update[Entity.object][loser.value] = {
     ...loser,
     prev: winner.value,
+  };
+};
+
+/**
+ * Handle conflicts when two lists specify a different ending value,
+ * commonly when there's been two simultaneous appends.
+ * @private
+ * @param  {List} current - Current state.
+ * @param  {List} update - A list update.
+ * @param  {Object} delta - An object with an update and history field.
+ * @return {undefined}
+ */
+merge.last = (current, update, delta) => {
+  const meta = {
+    current: current.meta(List.last),
+    update: update.meta(List.last),
+  };
+
+  const winner = conflict(meta.current, meta.update);
+  const loser = winner === meta.current ? meta.update : meta.current;
+
+  if (winner === meta.update) {
+    delta.update[Entity.object][List.last] = meta.update;
+  }
+
+  delta.update[Entity.object][winner.value] = {
+    ...winner,
+    prev: loser.value,
+    next: null,
+  };
+
+  delta.update[Entity.object][loser.value] = {
+    ...loser,
+    next: winner.value,
   };
 };

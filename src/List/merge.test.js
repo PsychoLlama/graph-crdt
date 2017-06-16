@@ -65,15 +65,49 @@ describe('List delta()', () => {
     }
   });
 
-  it('does not show updates if both lists are identical', () => {
+  it('does not show List.first updates if both lists are identical', () => {
     const index = list.append('item');
-    update[Entity.object][List.first] = { ...list.meta(List.first) };
-    update[Entity.object][index] = { ...list.meta(index) };
 
+    update.merge(list);
+    list.merge(update);
     const delta = list.merge(update);
 
     expect(delta.update.meta(List.first)).toBe(null);
     expect(delta.update.meta(index)).toBe(null);
+  });
+
+  it('merges two appends', () => {
+    for (let index = 0; index < 50; index += 1) {
+      list.append('item');
+      update.merge(list);
+
+      const appendA = list.append('item');
+      const appendB = update.append('item');
+
+      list.merge(update);
+      const greater = appendA > appendB ? appendA : appendB;
+      const lesser = appendA > appendB ? appendB : appendA;
+
+      expect(list.value(List.last)).toBe(greater);
+      expect(list.meta(greater).next).toBe(null);
+      expect(list.meta(greater).prev).toBe(lesser);
+
+      expect(list.meta(lesser).next).toBe(greater);
+    }
+  });
+
+  it('does not show List.last updates if both lists are identical', () => {
+    list.append('item');
+    update.merge(list);
+
+    list.append('item');
+    update.append('item');
+
+    update.merge(list);
+    list.merge(update);
+    const delta = list.merge(update);
+
+    expect(delta.update.meta(List.last)).toBe(null);
   });
 });
 
