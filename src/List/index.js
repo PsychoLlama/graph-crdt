@@ -27,6 +27,49 @@ export default class List extends Entity {
   static last = '@last';
 
   /**
+   * Turns an iterable instance into a linked list.
+   * @param  {Iterable} iterable - Generators or owners of `Symbol.iterator`.
+   * @return {List} - A new list containing all items from the iterable.
+   */
+  static from (iterable) {
+    const list = new List();
+
+    const source = [...iterable];
+    const mapped = {};
+
+    source.forEach((value, index) => {
+      const isFirstItem = index === 0;
+      const isLastItem = index === source.length - 1;
+
+      // ID of the previous value.
+      const prev = isFirstItem ? null : mapped[index - 1];
+
+      // ID of the next value.
+      const next = isLastItem ? null : uuid();
+
+      // Pull the current ID from the previous value.
+      // Unless you're the first. That'd be dumb.
+      const current = isFirstItem ? uuid() : list[Entity.object][prev].next;
+
+      // Create an entry in the new list.
+      list[Entity.object][current] = { value, prev, next };
+
+      if (isFirstItem) {
+        list[Entity.object][List.first] = { value: current };
+      }
+
+      if (isLastItem) {
+        list[Entity.object][List.last] = { value: current };
+      }
+
+      // The next time through the loop will need the previous index.
+      mapped[index] = current;
+    });
+
+    return list;
+  }
+
+  /**
    * Figures out which fields must be changed to successfully merge.
    * @param  {Entity} update - Any entity interface.
    * @return {Object} - A delta object.
