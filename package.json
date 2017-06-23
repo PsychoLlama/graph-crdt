@@ -6,9 +6,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "preversion": "npm run build",
-    "build": "npm run build:js && npm run build:doc",
-    "build:js": "babel src/ -d dist/ --ignore **/*spec.js",
-    "build:doc": "jsdoc --configure jsdoc.config.json",
+    "build": "babel src/ -d dist/ --ignore **/*spec.js",
     "test": "mocha 'src/**/*test.js' --opts ./mocha.opts",
     "lint": "eslint src/"
   },
@@ -33,9 +31,7 @@
     "eslint-config-llama": "^3.0.0",
     "eslint-plugin-babel": "^4.0.0",
     "expect": "^1.20.2",
-    "jsdoc": "^3.4.0",
-    "mocha": "^3.2.0",
-    "postman-jsdoc-theme": "0.0.2"
+    "mocha": "^3.2.0"
   },
   "dependencies": {
     "babel-runtime": "^6.20.0",
