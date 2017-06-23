@@ -2,7 +2,6 @@
  * @module graph-crdt.Node
  */
 
-import { conflict } from '../union';
 import Entity from '../Entity';
 
 /**
