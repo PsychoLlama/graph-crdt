@@ -19,11 +19,9 @@ Probably the worst experience, block all writes until the network heals. This is
 You allow writes on the offline machine, wait for the network to heal, then publish them. If not handled perfectly, you're susceptible to merge hell on an active production environment.
 
 - **Use a CRDT**<br />
-CRDTs ([Convergent Replicated Data Types](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)) are similar to the option above, but come with additional guarantees: regardless of the order which updates are received in, every machine will arrive at the exact same result *every time*, and if implemented correctly, make merge conflicts impossible\*.
+CRDTs ([Convergent Replicated Data Types](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)) are similar to the option above, but come with additional guarantees: regardless of the order which updates are received in, every machine will arrive at the exact same result *every time*, and if implemented correctly, make merge conflicts impossible.
 
-<small>
-  &ast; graph-crdt uses Lamport time to track state mutation and resolves concurrent edit conflicts using a deterministic sorting algorithm.
-</small>
+> `graph-crdt` uses Lamport time to track state mutation and resolves concurrent edit conflicts using a deterministic sorting algorithm.
 
 This library opts for the latter, implementing a delta graph CvRDT. However, as great as they may seem, there are some cons (some specific to this library):
 
