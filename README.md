@@ -22,7 +22,7 @@ You allow writes on the offline machine, wait for the network to heal, then publ
 CRDTs ([Convergent Replicated Data Types](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)) are similar to the option above, but come with additional guarantees: regardless of the order which updates are received in, every machine will arrive at the exact same result *every time*, and if implemented correctly, make merge conflicts impossible\*.
 
 <small>
-\*<code>graph-crdt</code> uses Lamport time to track state mutation and resolves concurrent edit conflicts using a deterministic sorting algorithm.
+  &ast; graph-crdt uses Lamport time to track state mutation and resolves concurrent edit conflicts using a deterministic sorting algorithm.
 </small>
 
 This library opts for the latter, implementing a delta graph CvRDT. However, as great as they may seem, there are some cons (some specific to this library):
