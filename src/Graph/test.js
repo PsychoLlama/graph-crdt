@@ -5,7 +5,7 @@ import Node from '../Node';
 
 describe('Graph static method', () => {
   describe('source()', () => {
-    it('uses the input as it\'s data source', () => {
+    it("uses the input as it's data source", () => {
       const node = Node.create({ uid: 'member' });
       const graph = Graph.create();
       node.merge({ data: true });
@@ -21,9 +21,8 @@ describe('Graph static method', () => {
       const copy = JSON.parse(JSON.stringify(node));
 
       const graph = Graph.source({
-
         // "copy" is a plain object.
-        'placeholder': copy,
+        placeholder: copy,
       });
 
       const [key] = [...graph].map(([key]) => key);
@@ -67,10 +66,7 @@ describe('A graph', () => {
 
       const entries = [...graph];
 
-      expect(entries).toEqual([
-        ['first', first],
-        ['second', second],
-      ]);
+      expect(entries).toEqual([['first', first], ['second', second]]);
     });
   });
 
@@ -160,9 +156,7 @@ describe('A graph', () => {
         [node2]: node2,
       });
 
-      expect([...update]).toEqual([
-        [String(node2), node2],
-      ]);
+      expect([...update]).toEqual([[String(node2), node2]]);
     });
 
     it('emits an `update` delta graph on change', () => {

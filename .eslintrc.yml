@@ -17,4 +17,5 @@ parserOptions:
 parser: babel-eslint
 
 rules:
+  lines-around-comment: off
   require-jsdoc: off

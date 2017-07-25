@@ -39,7 +39,6 @@ const getIncrementedState = (current, update) => {
  * node uid.
  */
 export default class Node extends Emitter {
-
   /**
    * Creates a new Node instance without using
    * `new`.
@@ -47,7 +46,7 @@ export default class Node extends Emitter {
    * @param {Object} [config] - The constructor configuration object.
    * @returns {Node} - The new node instance.
    */
-  static create (config) {
+  static create(config) {
     return new Node(config);
   }
 
@@ -59,7 +58,7 @@ export default class Node extends Emitter {
    * @param  {Object} object - Any enumerable object.
    * @returns {Node} - A node interface constructed from the object.
    */
-  static from (object) {
+  static from(object) {
     const instance = Node.create();
     const state = 1;
 
@@ -90,15 +89,14 @@ export default class Node extends Emitter {
    * const node = Node.source(parsed)
    * node.value('data') // 'intact'
    */
-  static source (object) {
+  static source(object) {
     const instance = Node.create();
     instance[node] = object;
 
     return instance;
   }
 
-  constructor (config = {}) {
-
+  constructor(config = {}) {
     super();
 
     const uid = config.uid || uuid();
@@ -116,10 +114,8 @@ export default class Node extends Emitter {
    * @returns {Object|null} - If metadata is found, it returns the object.
    * Otherwise `null` is given.
    */
-  meta (field) {
-
+  meta(field) {
     if (field === undefined) {
-
       /** Returns the object metadata if no field is specified. */
       return this[node]['@object'];
     }
@@ -137,7 +133,7 @@ export default class Node extends Emitter {
    * or undefined if it doesn't exist. Cannot be called
    * on reserved fields (like "@object").
    */
-  value (field) {
+  value(field) {
     if (field === '@object') {
       return undefined;
     }
@@ -145,7 +141,7 @@ export default class Node extends Emitter {
     /** Gets the field metadata. */
     const subject = this.meta(field);
 
-   /**
+    /**
     * If the field exists, it returns the corresponding
     * value, otherwise it returns undefined.
     */
@@ -158,8 +154,7 @@ export default class Node extends Emitter {
    * @param  {String} field - Property name.
    * @returns {Number} - Current lamport state (or 0).
    */
-  state (field) {
-
+  state(field) {
     /** Get the field metadata. */
     const meta = this.meta(field);
 
@@ -172,7 +167,7 @@ export default class Node extends Emitter {
    * @param  {Object} metadata - What metadata the field should contain.
    * @return {Object} - The metadata object (not the same one given).
    */
-  setMetadata (field, metadata) {
+  setMetadata(field, metadata) {
     const state = this.state(field) + 1;
 
     const update = this.new();
@@ -188,7 +183,7 @@ export default class Node extends Emitter {
    * @param  {Node} target - Preceding state.
    * @return {Node} - A new, rebased node.
    */
-  rebase (target) {
+  rebase(target) {
     const rebased = this.new();
 
     rebased.merge(target);
@@ -197,7 +192,6 @@ export default class Node extends Emitter {
     // Bump state for older fields.
     for (const [key] of this) {
       if (target.state(key) >= this.state(key)) {
-
         // Avoids mutation of metadata.
         rebased[node][key] = {
           ...this.meta(key),
@@ -214,7 +208,7 @@ export default class Node extends Emitter {
    * @param  {Node} target - Any other node.
    * @return {Node} - A collection of fields common to both nodes.
    */
-  overlap (target) {
+  overlap(target) {
     const shared = this.new();
 
     for (const [field] of this) {
@@ -234,7 +228,7 @@ export default class Node extends Emitter {
    * using `Node.from`.
    * @returns {Object} - A collection of changes caused by the merge.
    */
-  merge (incoming) {
+  merge(incoming) {
     if (!(incoming instanceof Node)) {
       incoming = getIncrementedState(this, incoming);
     }
@@ -270,7 +264,6 @@ export default class Node extends Emitter {
       }
 
       if (state.current < state.incoming || forceUpdate) {
-
         /** Track overwritten values. */
         if (current) {
           changes.history[node][field] = current;
@@ -303,7 +296,7 @@ export default class Node extends Emitter {
    * Creates an empty instance with the same configuration.
    * @return {Node} - A new node instance with the same properties.
    */
-  new () {
+  new() {
     const { uid } = this.meta();
     const clone = new Node({ uid });
 
@@ -314,7 +307,7 @@ export default class Node extends Emitter {
    * Takes a snapshot of the current state.
    * @return {Object} - Every key and value (currently) in the node.
    */
-  snapshot () {
+  snapshot() {
     const object = {};
 
     for (const [key, value] of this) {
@@ -328,19 +321,17 @@ export default class Node extends Emitter {
    * Iterates over the node keys & values, ignoring metadata.
    * @return {Array} - Each value yielded is a [key, value] pair.
    */
-  * [Symbol.iterator] () {
+  *[Symbol.iterator]() {
     const object = this[node];
     const meta = '@object';
 
     /** Iterate over the source object. */
     for (const key in object) {
-
       /** Ignore prototype values and node metadata. */
       if (object.hasOwnProperty(key) && key !== meta) {
         const value = this.value(key);
         yield [key, value];
       }
-
     }
   }
 
@@ -353,7 +344,7 @@ export default class Node extends Emitter {
    * @private
    * @returns {String} - The node's unique ID.
    */
-  toString () {
+  toString() {
     const { uid } = this.meta();
 
     return uid;
@@ -367,7 +358,7 @@ export default class Node extends Emitter {
    * @private
    * @returns {Object} - The actual node object.
    */
-  toJSON () {
+  toJSON() {
     return this[node];
   }
 }
