@@ -13,13 +13,12 @@ const nodes = Symbol('graph node container');
  * @class Graph
  */
 export default class Graph extends Emitter {
-
   /**
    * Instantiates a graph without needing `new`.
    *
    * @returns {Graph} - A graph instance.
    */
-  static create () {
+  static create() {
     return new Graph();
   }
 
@@ -32,14 +31,12 @@ export default class Graph extends Emitter {
    * @returns {Graph} - A new graph instance that consumes
    * the imported data.
    */
-  static source (object) {
-
+  static source(object) {
     // Create a new graph
     const graph = Graph.create();
 
     // For each node...
-    Object.keys(object).forEach((key) => {
-
+    Object.keys(object).forEach(key => {
       let node = object[key];
 
       // Make sure it's a node.
@@ -57,7 +54,7 @@ export default class Graph extends Emitter {
     return graph;
   }
 
-  constructor () {
+  constructor() {
     super();
 
     this[nodes] = {};
@@ -69,11 +66,11 @@ export default class Graph extends Emitter {
    * @param  {String} key - The name/uid of the node.
    * @returns {Node|null} - The node if found, otherwise `null`.
    */
-  value (key) {
+  value(key) {
     return this[nodes][key] || null;
   }
 
-  new () {
+  new() {
     return new Graph();
   }
 
@@ -83,7 +80,7 @@ export default class Graph extends Emitter {
    * @param  {Graph} target - Preceding state.
    * @return {Graph} - A new graph containing the rebased nodes.
    */
-  rebase (target) {
+  rebase(target) {
     const rebased = this.new();
 
     rebased.merge(target);
@@ -105,12 +102,11 @@ export default class Graph extends Emitter {
    * @param  {Graph} target - Any other graph.
    * @return {Graph} - The shared properties between both graphs.
    */
-  overlap (target) {
+  overlap(target) {
     const shared = this.new();
 
     for (const [key] of this) {
       if (this.value(key) && target.value(key)) {
-
         // Calculate the node overlap.
         const nodeSource = this.value(key);
         const nodeTarget = target.value(key);
@@ -131,8 +127,7 @@ export default class Graph extends Emitter {
    * Items must be enumerable, and cannot be inherited from prototypes.
    * @returns {Graph} - The `this` context.
    */
-  merge (graph) {
-
+  merge(graph) {
     /** Ensure it's a graph. */
     if (!(graph instanceof Graph)) {
       graph = Graph.source(graph);
@@ -166,7 +161,7 @@ export default class Graph extends Emitter {
    * Iterates over every node in the graph.
    * @return {Array} - Every yielded value is a key/value pair.
    */
-  * [Symbol.iterator] () {
+  *[Symbol.iterator]() {
     const object = this[nodes];
 
     for (const key in object) {
@@ -185,8 +180,7 @@ export default class Graph extends Emitter {
    * @private
    * @returns {Object} - The hidden collection of nodes.
    */
-  toJSON () {
+  toJSON() {
     return this[nodes];
   }
-
 }

@@ -14,8 +14,7 @@
  * @returns {Object} - The greater value, or if they're
  * equal, the current state.
  */
-export function conflict (field1, field2) {
-
+export function conflict(field1, field2) {
   /** Turn the values into comparable strings. */
   const string = {
     current: JSON.stringify(field1.value),
@@ -23,11 +22,11 @@ export function conflict (field1, field2) {
   };
 
   /** Are the values equal? */
-  const equal = (string.current === string.update);
+  const equal = string.current === string.update;
 
   /** Is our current value greater? */
-  const greater = (string.current > string.update);
+  const greater = string.current > string.update;
 
   /** Return the winning value. */
-  return (equal || greater) ? field1 : field2;
+  return equal || greater ? field1 : field2;
 }

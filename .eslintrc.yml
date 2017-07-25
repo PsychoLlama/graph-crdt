@@ -1,0 +1,21 @@
+env:
+  browser: true
+  node: true
+  es6: true
+
+plugins:
+  - babel
+
+extends:
+  - eslint:recommended
+  - llama
+  - prettier
+
+parserOptions:
+  sourceType: module
+
+parser: babel-eslint
+
+rules:
+  lines-around-comment: off
+  require-jsdoc: off

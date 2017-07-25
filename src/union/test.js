@@ -5,9 +5,7 @@ import { conflict } from './index';
 const { createSpy } = expect;
 
 describe('A union', () => {
-
   describe('conflict', () => {
-
     let current, update, result, inverse;
     const state = 10;
 
@@ -16,8 +14,7 @@ describe('A union', () => {
       update = { state };
     });
 
-    function setup () {
-
+    function setup() {
       // Try it in both orders.
       result = conflict(current, update);
       inverse = conflict(update, current);
@@ -88,7 +85,5 @@ describe('A union', () => {
       expect(result).toBe(current);
       expect(inverse).toBe(current);
     });
-
   });
-
 });

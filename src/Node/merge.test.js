@@ -74,7 +74,7 @@ describe('A node merge', () => {
       const spy = createSpy();
       node.on('update', spy);
 
-        // No properties.
+      // No properties.
       node.merge({});
 
       expect(spy).toNotHaveBeenCalled();
@@ -115,7 +115,7 @@ describe('A node merge', () => {
     });
 
     it('does not overwrite more recent properties', () => {
-        // Stale update.
+      // Stale update.
       incoming.merge({ hello: 'Mars' });
       incoming.meta('hello').state = 1;
 
@@ -129,7 +129,7 @@ describe('A node merge', () => {
     });
 
     it('adds new properties', () => {
-        // Really old state, but it's new to `node`.
+      // Really old state, but it's new to `node`.
       incoming.merge({ success: true });
       incoming.meta('success').state = 10;
 

@@ -124,10 +124,7 @@ describe('Node', () => {
 
       const pairs = [...node];
 
-      expect(pairs).toEqual([
-        ['name', 'Stewart'],
-        ['tier', 'premium'],
-      ]);
+      expect(pairs).toEqual([['name', 'Stewart'], ['tier', 'premium']]);
     });
   });
 
@@ -138,7 +135,6 @@ describe('Node', () => {
     });
 
     it('returns undefined if called on reserved fields', () => {
-
       // Please, never do this in your code.
       node.meta().value = 'failure!';
 
@@ -187,7 +183,7 @@ describe('Node', () => {
     });
 
     it('bumps the state if the field existed before', () => {
-      node.merge({ 'temp': 31 });
+      node.merge({ temp: 31 });
 
       const update = {
         value: 30,
