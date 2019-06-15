@@ -1,9 +1,14 @@
 # Distributed Graph Engine
 [![Travis branch](https://img.shields.io/travis/PsychoLlama/graph-crdt/master.svg?style=flat-square)](https://travis-ci.org/PsychoLlama/graph-crdt)
 
-> graph-crdt is a **work in progress** with frequent breaking changes.
-
 Designed for serializing arbitrary data structures, making offline edits, and seamlessly merging changes back in. All data is observable and event driven.
+
+For the technical, `graph-crdt` is a modified version of a [LWW-E-Set](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type#LWW-Element-Set_(Last-Write-Wins-Element-Set)) with inline garbage collection using [lamport clocks](https://en.wikipedia.org/wiki/Lamport_timestamps) and JavaScript's [lexicographic comparison](https://en.wikipedia.org/wiki/Lexicographical_order) on deterministically serialized JSON for the predetermined conflict resolution bias.
+
+# Maintenance notice
+If it isn't obvious from the lack of recent commits, `graph-crdt` is **unmaintained**.
+
+I'm still pursuing the concepts through [the mytosis framework](https://github.com/PsychoLlama/mytosis) along with more ambitious ideas, but development has kinda paused there too. I hit some project burnout.
 
 # What for?
 This graph library aims to ease the complexity of synchronizing complex and interconnected state between peers, without assuming centralized authority.
